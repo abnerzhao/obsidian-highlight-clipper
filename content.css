@@ -43,7 +43,7 @@
 .oh-mode-button { flex-basis: 100%; color: var(--oh-text); background: var(--oh-subtle); }
 .oh-button:disabled { opacity: .45; cursor: not-allowed; }
 #oh-panel[data-theme="dusk"] { --oh-surface: #26313d; --oh-text: #eef2f7; --oh-muted: #a9b8ca; --oh-line: #415064; --oh-subtle: #344255; --oh-accent: #7697e8; }
-#oh-panel[data-theme="sand"] { --oh-surface: #f5ead2; --oh-text: #3d3529; --oh-muted: #776957; --oh-line: #ded0b4; --oh-subtle: #ebddc2; --oh-accent: #776143; }
+#oh-panel[data-theme="sand"] { --oh-surface: #fbf5e9; --oh-text: #443b2f; --oh-muted: #7e6f5c; --oh-line: #ebdfca; --oh-subtle: #f4ead9; --oh-accent: #806946; }
 #oh-panel[data-theme="dusk"] .oh-mode.active { color: #d6f5da; background: #365943; }
 #oh-panel.is-collapsed { width: 44px; height: 44px; border-radius: 12px; }
 #oh-panel.is-collapsed .oh-header { min-height: 44px; justify-content: center; padding: 0; border: 0; }

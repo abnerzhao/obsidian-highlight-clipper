@@ -33,10 +33,11 @@
         <button class="oh-collapse" type="button" aria-label="收起">›</button>
       </header>
       <ul class="oh-list"></ul>
-      <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button></div>`;
+      <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
     panel.querySelector('.oh-collapse').addEventListener('click', togglePanelCollapse);
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
+    panel.querySelector('.oh-clear').addEventListener('click', clearHighlights);
     panel.querySelector('.oh-mode-button').addEventListener('click', toggleSelectionMode);
     document.documentElement.append(panel);
   }
@@ -60,7 +61,7 @@
     mode.textContent = selectionMode ? '选择模式：开' : '选择模式：关';
     mode.classList.toggle('active', selectionMode);
     panel.querySelector('.oh-mode-button').textContent = selectionMode ? '退出高亮选择模式' : '进入高亮选择模式';
-    panel.querySelectorAll('.oh-button').forEach((button) => { button.disabled = highlights.length === 0; });
+    panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
       : '<li class="oh-empty">选中文字后按 ⌃⇧H（Windows/Linux：Alt+Shift+H）即可高亮。</li>';
@@ -86,6 +87,14 @@
     const range = rangesById.get(removed.id);
     if (range) cssHighlight.delete(range);
     rangesById.delete(removed.id);
+  }
+
+  async function clearHighlights() {
+    highlights = [];
+    rangesById.clear();
+    cssHighlight.clear();
+    await saveHighlights();
+    renderPanel();
   }
 
   async function highlightSelection() {

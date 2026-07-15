@@ -2,6 +2,7 @@ const saveModes = document.querySelectorAll('input[name="saveMode"]');
 const customFile = document.querySelector('#customFile');
 const includeSource = document.querySelector('#includeSource');
 const status = document.querySelector('#status');
+const panelThemes = document.querySelectorAll('input[name="panelTheme"]');
 
 function toggleCustomFile() {
   customFile.hidden = document.querySelector('input[name="saveMode"]:checked').value !== 'custom';
@@ -16,6 +17,10 @@ chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.m
 });
 
 saveModes.forEach((input) => input.addEventListener('change', toggleCustomFile));
+panelThemes.forEach((input) => input.addEventListener('change', () => {
+  chrome.storage.sync.set({ panelTheme: input.value });
+  status.textContent = '背景色已更新';
+}));
 
 document.querySelector('#save').addEventListener('click', async () => {
   const saveMode = document.querySelector('input[name="saveMode"]:checked').value;
