@@ -64,7 +64,7 @@
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
-      : '<li class="oh-empty">选中文字后按 ⌃⇧H（Windows/Linux：Alt+Shift+H）即可高亮。</li>';
+      : '<li class="oh-empty">按 ⌃⇧H（Windows/Linux：Alt+Shift+H）开启选择模式，选中文本即可高亮；再按一次退出。</li>';
     list.querySelectorAll('.oh-delete').forEach((button) => button.addEventListener('click', async () => {
       removeHighlightAt(Number(button.dataset.index));
       await saveHighlights();
@@ -87,6 +87,15 @@
     const range = rangesById.get(removed.id);
     if (range) cssHighlight.delete(range);
     rangesById.delete(removed.id);
+  }
+
+  function sortHighlightsByPagePosition() {
+    highlights.sort((left, right) => {
+      const leftRange = rangesById.get(left.id);
+      const rightRange = rangesById.get(right.id);
+      if (!leftRange || !rightRange) return left.createdAt.localeCompare(right.createdAt);
+      return leftRange.compareBoundaryPoints(Range.START_TO_START, rightRange);
+    });
   }
 
   async function clearHighlights() {
@@ -115,6 +124,7 @@
     rangesById.set(id, range);
     selection.removeAllRanges();
     highlights.push({ id, text, createdAt: new Date().toISOString() });
+    sortHighlightsByPagePosition();
     await saveHighlights();
     renderPanel();
     panel.hidden = false;
@@ -123,7 +133,15 @@
   function toggleSelectionMode() {
     selectionMode = !selectionMode;
     renderPanel();
-    if (selectionMode) panel.hidden = false;
+    if (!selectionMode) {
+      panel.hidden = true;
+      return;
+    }
+    panel.hidden = false;
+    panel.classList.remove('is-collapsed');
+    const button = panel.querySelector('.oh-collapse');
+    button.textContent = '›';
+    button.setAttribute('aria-label', '收起');
   }
 
   function openObsidian(url) {
