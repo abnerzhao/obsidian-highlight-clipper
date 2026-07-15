@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Obsidian Highlighter",
+  "description": "在网页中高亮文本，并批量剪藏到 Obsidian。",
+  "version": "0.1.0",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_title": "Obsidian Highlighter"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "commands": {
+    "highlight-selection": {
+      "suggested_key": {
+        "default": "Alt+Shift+H",
+        "mac": "MacCtrl+Shift+H"
+      },
+      "description": "高亮当前选中文本"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_page": "options.html"
+}

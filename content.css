@@ -1,0 +1,36 @@
+.oh-highlight {
+  background: #fef08a !important;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  cursor: pointer;
+}
+
+#oh-panel {
+  position: fixed;
+  z-index: 2147483647;
+  top: 16px;
+  right: 16px;
+  width: 340px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  color: #1e293b;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgb(15 23 42 / 22%);
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#oh-panel * { box-sizing: border-box; }
+#oh-panel[hidden] { display: none; }
+.oh-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid #e2e8f0; }
+.oh-title { margin: 0; font-size: 15px; font-weight: 650; }
+.oh-close, .oh-delete { border: 0; background: transparent; cursor: pointer; color: #64748b; font-size: 18px; }
+.oh-list { margin: 0; padding: 8px 0; list-style: none; }
+.oh-item { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid #f1f5f9; }
+.oh-item-text { flex: 1; overflow-wrap: anywhere; }
+.oh-empty { padding: 24px 16px; color: #64748b; text-align: center; }
+.oh-footer { display: flex; gap: 8px; padding: 12px 16px; }
+.oh-button { flex: 1; padding: 8px 10px; color: #fff; background: #4f46e5; border: 0; border-radius: 7px; cursor: pointer; font-weight: 600; }
+.oh-button:disabled { opacity: .45; cursor: not-allowed; }
