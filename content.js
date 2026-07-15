@@ -1,7 +1,11 @@
 (() => {
   const STORAGE_KEY = 'highlightsByPage';
+  const HIGHLIGHT_NAME = 'obsidian-highlighter';
   let highlights = [];
   let panel;
+  let selectionMode = false;
+  const rangesById = new Map();
+  const cssHighlight = new Highlight();
 
   const pageKey = location.href;
 
@@ -24,14 +28,15 @@
     panel.hidden = true;
     panel.innerHTML = `
       <header class="oh-header">
-        <h2 class="oh-title">本页剪藏 <span class="oh-count"></span></h2>
+        <h2 class="oh-title">本页剪藏 <span class="oh-count"></span><span class="oh-mode"></span></h2>
         <button class="oh-close" type="button" aria-label="关闭">×</button>
       </header>
       <ul class="oh-list"></ul>
-      <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button></div>`;
+      <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button></div>`;
     panel.querySelector('.oh-close').addEventListener('click', () => { panel.hidden = true; });
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
+    panel.querySelector('.oh-mode-button').addEventListener('click', toggleSelectionMode);
     document.documentElement.append(panel);
   }
 
@@ -39,12 +44,19 @@
     if (!panel) return;
     const list = panel.querySelector('.oh-list');
     panel.querySelector('.oh-count').textContent = highlights.length ? `(${highlights.length})` : '';
+    const mode = panel.querySelector('.oh-mode');
+    mode.textContent = selectionMode ? '选择模式：开' : '选择模式：关';
+    mode.classList.toggle('active', selectionMode);
+    panel.querySelector('.oh-mode-button').textContent = selectionMode ? '退出高亮选择模式' : '进入高亮选择模式';
     panel.querySelectorAll('.oh-button').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
       : '<li class="oh-empty">选中文字后按 ⌃⇧H（Windows/Linux：Alt+Shift+H）即可高亮。</li>';
     list.querySelectorAll('.oh-delete').forEach((button) => button.addEventListener('click', async () => {
-      highlights.splice(Number(button.dataset.index), 1);
+      const [removed] = highlights.splice(Number(button.dataset.index), 1);
+      const range = rangesById.get(removed.id);
+      if (range) cssHighlight.delete(range);
+      rangesById.delete(removed.id);
       await saveHighlights();
       renderPanel();
     }));
@@ -60,20 +72,27 @@
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !selection.toString().trim()) return;
     const text = selection.toString().trim();
-    try {
-      const range = selection.getRangeAt(0);
-      const mark = document.createElement('mark');
-      mark.className = 'oh-highlight';
-      mark.append(range.extractContents());
-      range.insertNode(mark);
-      selection.removeAllRanges();
-      highlights.push({ text, createdAt: new Date().toISOString() });
-      await saveHighlights();
-      renderPanel();
-      panel.hidden = false;
-    } catch {
-      alert('选区跨越了多个复杂元素，请缩小选区后重试。');
-    }
+    const range = selection.getRangeAt(0).cloneRange();
+    const id = crypto.randomUUID();
+    cssHighlight.add(range);
+    rangesById.set(id, range);
+    selection.removeAllRanges();
+    highlights.push({ id, text, createdAt: new Date().toISOString() });
+    await saveHighlights();
+    renderPanel();
+    panel.hidden = false;
+  }
+
+  function toggleSelectionMode() {
+    selectionMode = !selectionMode;
+    renderPanel();
+    if (selectionMode) panel.hidden = false;
+  }
+
+  function openObsidian(url) {
+    const link = document.createElement('a');
+    link.href = url;
+    link.click();
   }
 
   async function markdownAndSettings() {
@@ -100,14 +119,20 @@
     const url = settings.saveMode === 'daily'
       ? `obsidian://daily?append=true&content=${encodeURIComponent(markdown)}`
       : `obsidian://new?file=${encodeURIComponent(settings.customFile.trim())}&append=true&content=${encodeURIComponent(markdown)}`;
-    chrome.runtime.sendMessage({ type: 'OPEN_OBSIDIAN_NOTE', url });
+    openObsidian(url);
   }
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'TOGGLE_PANEL') panel.hidden = !panel.hidden;
-    if (message.type === 'HIGHLIGHT_SELECTION') highlightSelection();
+    if (message.type === 'TOGGLE_SELECTION_MODE') toggleSelectionMode();
+  });
+
+  document.addEventListener('mouseup', (event) => {
+    if (!selectionMode || event.target.closest('#oh-panel')) return;
+    highlightSelection();
   });
 
   createPanel();
+  CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
   loadHighlights();
 })();

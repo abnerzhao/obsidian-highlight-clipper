@@ -5,7 +5,8 @@
   "version": "0.1.0",
   "permissions": ["storage", "activeTab", "scripting"],
   "action": {
-    "default_title": "Obsidian Highlighter"
+    "default_title": "Obsidian Highlighter",
+    "default_popup": "popup.html"
   },
   "background": {
     "service_worker": "background.js",
@@ -17,7 +18,7 @@
         "default": "Alt+Shift+H",
         "mac": "MacCtrl+Shift+H"
       },
-      "description": "高亮当前选中文本"
+      "description": "切换高亮选择模式"
     }
   },
   "content_scripts": [

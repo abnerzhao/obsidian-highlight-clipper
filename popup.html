@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlighter</title><link rel="stylesheet" href="popup.css"></head>
+  <body>
+    <main>
+      <h1>Obsidian Highlighter</h1>
+      <button id="openPanel" class="primary" type="button">打开本页剪藏</button>
+      <fieldset>
+        <legend>保存位置</legend>
+        <label><input type="radio" name="saveMode" value="daily">默认日志</label>
+        <label><input type="radio" name="saveMode" value="custom">自定义文件</label>
+        <input id="customFile" placeholder="Inbox/Web Highlights.md">
+      </fieldset>
+      <label class="source"><input id="includeSource" type="checkbox">携带原文链接</label>
+      <div class="actions"><button id="save" class="primary" type="button">保存设置</button><button id="openOptions" type="button">更多设置</button></div>
+      <p id="status" role="status"></p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>
