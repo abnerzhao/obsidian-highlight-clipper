@@ -1,13 +1,13 @@
 # Obsidian Highlight Clipper
 
-一个 Manifest V3 Chrome 扩展：网页内多处高亮，统一复制为 Markdown 后粘贴进 Obsidian。
+一个 Manifest V3 Chrome 扩展：网页内多处高亮，并批量剪藏到 Obsidian。
 
 ## 使用
 
 1. 打开 `chrome://extensions`，开启开发者模式，选择「加载已解压的扩展程序」。
 2. 选择本项目目录。
 3. 在网页内按 `Control + Shift + H`（macOS）或 `Alt + Shift + H`（其他平台）进入高亮选择模式；此后鼠标选中即高亮，再按一次退出。
-4. 点击扩展图标，在 Popup 中设置保存位置，或点击「打开本页剪藏」查看侧栏并保存到 Obsidian。
+4. 点击扩展图标，在 Popup 中设置保存位置；侧栏会在进入选择模式或新增高亮时自动显示。
 
 ## 当前限制
 

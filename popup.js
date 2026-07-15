@@ -7,7 +7,7 @@ function toggleCustomFile() {
   customFile.hidden = document.querySelector('input[name="saveMode"]:checked').value !== 'custom';
 }
 
-chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'light' }).then((settings) => {
+chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'sand' }).then((settings) => {
   document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
   customFile.value = settings.customFile;
   includeSource.checked = settings.includeSource;
@@ -26,12 +26,6 @@ document.querySelector('#save').addEventListener('click', async () => {
   const panelTheme = document.querySelector('input[name="panelTheme"]:checked').value;
   await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, panelTheme });
   status.textContent = '已保存';
-});
-
-document.querySelector('#openPanel').addEventListener('click', async () => {
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (tab?.id) await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_PANEL' });
-  window.close();
 });
 
 document.querySelector('#openOptions').addEventListener('click', () => chrome.runtime.openOptionsPage());

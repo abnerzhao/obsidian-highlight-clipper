@@ -4,7 +4,7 @@
   let highlights = [];
   let panel;
   let selectionMode = false;
-  let panelTheme = 'light';
+  let panelTheme = 'sand';
   const rangesById = new Map();
   const cssHighlight = new Highlight();
 
@@ -29,8 +29,8 @@
     panel.hidden = true;
     panel.innerHTML = `
       <header class="oh-header">
-        <h2 class="oh-title">本页剪藏 <span class="oh-count"></span><span class="oh-mode"></span></h2>
-        <button class="oh-collapse" type="button" aria-label="收起">−</button>
+        <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode"></span></h2>
+        <button class="oh-collapse" type="button" aria-label="收起">›</button>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button></div>`;
@@ -44,7 +44,7 @@
   function togglePanelCollapse() {
     const collapsed = panel.classList.toggle('is-collapsed');
     const button = panel.querySelector('.oh-collapse');
-    button.textContent = collapsed ? '‹' : '−';
+    button.textContent = collapsed ? '‹' : '›';
     button.setAttribute('aria-label', collapsed ? '展开' : '收起');
   }
 
@@ -65,10 +65,7 @@
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
       : '<li class="oh-empty">选中文字后按 ⌃⇧H（Windows/Linux：Alt+Shift+H）即可高亮。</li>';
     list.querySelectorAll('.oh-delete').forEach((button) => button.addEventListener('click', async () => {
-      const [removed] = highlights.splice(Number(button.dataset.index), 1);
-      const range = rangesById.get(removed.id);
-      if (range) cssHighlight.delete(range);
-      rangesById.delete(removed.id);
+      removeHighlightAt(Number(button.dataset.index));
       await saveHighlights();
       renderPanel();
     }));
@@ -80,11 +77,30 @@
     return div.innerHTML;
   }
 
+  function normalizedText(text) {
+    return text.replace(/\s+/g, ' ').trim();
+  }
+
+  function removeHighlightAt(index) {
+    const [removed] = highlights.splice(index, 1);
+    const range = rangesById.get(removed.id);
+    if (range) cssHighlight.delete(range);
+    rangesById.delete(removed.id);
+  }
+
   async function highlightSelection() {
     const selection = window.getSelection();
     if (!selection || selection.isCollapsed || !selection.toString().trim()) return;
     const text = selection.toString().trim();
+    const normalized = normalizedText(text);
     const range = selection.getRangeAt(0).cloneRange();
+    if (highlights.some((item) => normalizedText(item.text).includes(normalized))) {
+      selection.removeAllRanges();
+      return;
+    }
+    for (let index = highlights.length - 1; index >= 0; index -= 1) {
+      if (normalized.includes(normalizedText(highlights[index].text))) removeHighlightAt(index);
+    }
     const id = crypto.randomUUID();
     cssHighlight.add(range);
     rangesById.set(id, range);
@@ -113,8 +129,8 @@
       customFile: 'Inbox/Web Highlights.md',
       includeSource: true
     });
-    const source = settings.includeSource ? `\n\n来源：[${document.title}](${location.href})` : '';
-    const markdown = `## ${document.title}\n\n${highlights.map((item) => `> ${item.text}`).join('\n\n')}${source}\n`;
+    const source = settings.includeSource ? `\n>\n> 原文链接：[${document.title}](${location.href})` : '';
+    const markdown = `${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n`;
     return { markdown, settings };
   }
 
@@ -146,7 +162,7 @@
 
   createPanel();
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
-  chrome.storage.sync.get({ panelTheme: 'light' }).then((settings) => {
+  chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => {
     panelTheme = settings.panelTheme;
     applyPanelTheme();
   });
