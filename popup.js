@@ -7,10 +7,11 @@ function toggleCustomFile() {
   customFile.hidden = document.querySelector('input[name="saveMode"]:checked').value !== 'custom';
 }
 
-chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true }).then((settings) => {
+chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'light' }).then((settings) => {
   document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
   customFile.value = settings.customFile;
   includeSource.checked = settings.includeSource;
+  document.querySelector(`input[name="panelTheme"][value="${settings.panelTheme}"]`).checked = true;
   toggleCustomFile();
 });
 
@@ -22,7 +23,8 @@ document.querySelector('#save').addEventListener('click', async () => {
     status.textContent = '请填写文件路径';
     return;
   }
-  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked });
+  const panelTheme = document.querySelector('input[name="panelTheme"]:checked').value;
+  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, panelTheme });
   status.textContent = '已保存';
 });
 

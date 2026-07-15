@@ -1,15 +1,23 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlighter</title><link rel="stylesheet" href="popup.css"></head>
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlight Clipper</title><link rel="stylesheet" href="popup.css"></head>
   <body>
     <main>
-      <h1>Obsidian Highlighter</h1>
+      <h1>Obsidian Highlight Clipper</h1>
       <button id="openPanel" class="primary" type="button">打开本页剪藏</button>
       <fieldset>
         <legend>保存位置</legend>
         <label><input type="radio" name="saveMode" value="daily">默认日志</label>
         <label><input type="radio" name="saveMode" value="custom">自定义文件</label>
         <input id="customFile" placeholder="Inbox/Web Highlights.md">
+      </fieldset>
+      <fieldset>
+        <legend>侧栏背景</legend>
+        <div class="theme-options">
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="light"><span class="theme-swatch theme-light"></span>浅色</label>
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="dusk"><span class="theme-swatch theme-dusk"></span>深色</label>
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="sand"><span class="theme-swatch theme-sand"></span>米色</label>
+        </div>
       </fieldset>
       <label class="source"><input id="includeSource" type="checkbox">携带原文链接</label>
       <div class="actions"><button id="save" class="primary" type="button">保存设置</button><button id="openOptions" type="button">更多设置</button></div>

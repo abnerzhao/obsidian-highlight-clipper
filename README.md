@@ -1,4 +1,4 @@
-# Obsidian Highlighter
+# Obsidian Highlight Clipper
 
 一个 Manifest V3 Chrome 扩展：网页内多处高亮，统一复制为 Markdown 后粘贴进 Obsidian。
 

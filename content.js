@@ -4,6 +4,7 @@
   let highlights = [];
   let panel;
   let selectionMode = false;
+  let panelTheme = 'light';
   const rangesById = new Map();
   const cssHighlight = new Highlight();
 
@@ -29,15 +30,26 @@
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页剪藏 <span class="oh-count"></span><span class="oh-mode"></span></h2>
-        <button class="oh-close" type="button" aria-label="关闭">×</button>
+        <button class="oh-collapse" type="button" aria-label="收起">−</button>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button></div>`;
-    panel.querySelector('.oh-close').addEventListener('click', () => { panel.hidden = true; });
+    panel.querySelector('.oh-collapse').addEventListener('click', togglePanelCollapse);
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
     panel.querySelector('.oh-mode-button').addEventListener('click', toggleSelectionMode);
     document.documentElement.append(panel);
+  }
+
+  function togglePanelCollapse() {
+    const collapsed = panel.classList.toggle('is-collapsed');
+    const button = panel.querySelector('.oh-collapse');
+    button.textContent = collapsed ? '‹' : '−';
+    button.setAttribute('aria-label', collapsed ? '展开' : '收起');
+  }
+
+  function applyPanelTheme() {
+    panel.dataset.theme = panelTheme;
   }
 
   function renderPanel() {
@@ -134,5 +146,15 @@
 
   createPanel();
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
+  chrome.storage.sync.get({ panelTheme: 'light' }).then((settings) => {
+    panelTheme = settings.panelTheme;
+    applyPanelTheme();
+  });
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.panelTheme) {
+      panelTheme = changes.panelTheme.newValue;
+      applyPanelTheme();
+    }
+  });
   loadHighlights();
 })();

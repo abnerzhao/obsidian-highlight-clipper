@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Obsidian Highlighter",
+  "name": "Obsidian Highlight Clipper",
   "description": "在网页中高亮文本，并批量剪藏到 Obsidian。",
   "version": "0.1.0",
   "permissions": ["storage", "activeTab", "scripting"],
   "action": {
-    "default_title": "Obsidian Highlighter",
+    "default_title": "Obsidian Highlight Clipper",
     "default_popup": "popup.html"
   },
   "background": {
@@ -29,5 +29,10 @@
       "run_at": "document_idle"
     }
   ],
-  "options_page": "options.html"
+  "options_page": "options.html",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  }
 }
