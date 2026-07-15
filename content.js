@@ -29,16 +29,16 @@
     panel.hidden = true;
     panel.innerHTML = `
       <header class="oh-header">
-        <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode"></span></h2>
+        <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><button class="oh-mode" type="button"></button></h2>
         <button class="oh-collapse" type="button" aria-label="收起">›</button>
       </header>
       <ul class="oh-list"></ul>
-      <div class="oh-footer"><button class="oh-button oh-mode-button" type="button"></button><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
+      <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
     panel.querySelector('.oh-collapse').addEventListener('click', togglePanelCollapse);
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
     panel.querySelector('.oh-clear').addEventListener('click', clearHighlights);
-    panel.querySelector('.oh-mode-button').addEventListener('click', toggleSelectionMode);
+    panel.querySelector('.oh-mode').addEventListener('click', toggleSelectionMode);
     document.documentElement.append(panel);
   }
 
@@ -60,11 +60,10 @@
     const mode = panel.querySelector('.oh-mode');
     mode.textContent = selectionMode ? '选择模式：开' : '选择模式：关';
     mode.classList.toggle('active', selectionMode);
-    panel.querySelector('.oh-mode-button').textContent = selectionMode ? '退出高亮选择模式' : '进入高亮选择模式';
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
-      : '<li class="oh-empty">按 ⌃⇧H（Windows/Linux：Alt+Shift+H）开启选择模式，选中文本即可高亮；再按一次退出。</li>';
+      : '<li class="oh-empty">macOS：Control + Shift + H。Windows/Linux：Alt + Shift + H。按一次开启选择模式，选中文本即可高亮；再按一次退出。</li>';
     list.querySelectorAll('.oh-delete').forEach((button) => button.addEventListener('click', async () => {
       removeHighlightAt(Number(button.dataset.index));
       await saveHighlights();
