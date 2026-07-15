@@ -24,7 +24,7 @@
     panel.hidden = true;
     panel.innerHTML = `
       <header class="oh-header">
-        <h2 class="oh-title">网页高亮</h2>
+        <h2 class="oh-title">本页剪藏 <span class="oh-count"></span></h2>
         <button class="oh-close" type="button" aria-label="关闭">×</button>
       </header>
       <ul class="oh-list"></ul>
@@ -38,6 +38,7 @@
   function renderPanel() {
     if (!panel) return;
     const list = panel.querySelector('.oh-list');
+    panel.querySelector('.oh-count').textContent = highlights.length ? `(${highlights.length})` : '';
     panel.querySelectorAll('.oh-button').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
@@ -76,9 +77,13 @@
   }
 
   async function markdownAndSettings() {
-    const settings = await chrome.storage.sync.get({ notePath: 'Web Highlights', includeSource: true });
+    const settings = await chrome.storage.sync.get({
+      saveMode: 'daily',
+      customFile: 'Inbox/Web Highlights.md',
+      includeSource: true
+    });
     const source = settings.includeSource ? `\n\n来源：[${document.title}](${location.href})` : '';
-    const markdown = `# ${document.title}\n\n${highlights.map((item) => `> ${item.text}`).join('\n\n')}${source}\n`;
+    const markdown = `## ${document.title}\n\n${highlights.map((item) => `> ${item.text}`).join('\n\n')}${source}\n`;
     return { markdown, settings };
   }
 
@@ -92,10 +97,9 @@
 
   async function saveToObsidian() {
     const { markdown, settings } = await markdownAndSettings();
-    const title = document.title.replace(/[\\/:*?"<>|]/g, '-').slice(0, 100) || 'Web Highlights';
-    const folder = settings.notePath.replace(/^\/+|\/+$/g, '');
-    const file = folder ? `${folder}/${title}` : title;
-    const url = `obsidian://new?file=${encodeURIComponent(file)}&content=${encodeURIComponent(markdown)}`;
+    const url = settings.saveMode === 'daily'
+      ? `obsidian://daily?append=true&content=${encodeURIComponent(markdown)}`
+      : `obsidian://new?file=${encodeURIComponent(settings.customFile.trim())}&append=true&content=${encodeURIComponent(markdown)}`;
     chrome.runtime.sendMessage({ type: 'OPEN_OBSIDIAN_NOTE', url });
   }
 

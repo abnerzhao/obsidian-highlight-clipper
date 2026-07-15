@@ -4,8 +4,13 @@
   <body>
     <main>
       <h1>Obsidian Highlighter</h1>
-      <p>剪藏内容会复制为 Markdown；粘贴至指定 Obsidian 笔记即可。</p>
-      <label>默认笔记位置<input id="notePath" placeholder="例如：Inbox/Web Highlights"></label>
+      <p>每次保存会把当前页面的全部剪藏追加到所选笔记。</p>
+      <fieldset>
+        <legend>保存位置</legend>
+        <label class="radio"><input type="radio" name="saveMode" value="daily">默认日志文件（Obsidian Daily notes）</label>
+        <label class="radio"><input type="radio" name="saveMode" value="custom">自定义文件</label>
+        <label id="customFileField">文件路径<input id="customFile" placeholder="例如：Inbox/Web Highlights.md"></label>
+      </fieldset>
       <label class="checkbox"><input id="includeSource" type="checkbox">携带原文链接</label>
       <button id="save" type="button">保存设置</button><span id="status" role="status"></span>
     </main>

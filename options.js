@@ -1,14 +1,29 @@
-const notePath = document.querySelector('#notePath');
+const saveModes = document.querySelectorAll('input[name="saveMode"]');
+const customFile = document.querySelector('#customFile');
+const customFileField = document.querySelector('#customFileField');
 const includeSource = document.querySelector('#includeSource');
 const status = document.querySelector('#status');
 
-chrome.storage.sync.get({ notePath: 'Inbox/Web Highlights', includeSource: true }).then((settings) => {
-  notePath.value = settings.notePath;
+function toggleCustomFile() {
+  customFileField.hidden = document.querySelector('input[name="saveMode"]:checked').value !== 'custom';
+}
+
+chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true }).then((settings) => {
+  document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
+  customFile.value = settings.customFile;
   includeSource.checked = settings.includeSource;
+  toggleCustomFile();
 });
 
+saveModes.forEach((input) => input.addEventListener('change', toggleCustomFile));
+
 document.querySelector('#save').addEventListener('click', async () => {
-  await chrome.storage.sync.set({ notePath: notePath.value.trim(), includeSource: includeSource.checked });
+  const saveMode = document.querySelector('input[name="saveMode"]:checked').value;
+  if (saveMode === 'custom' && !customFile.value.trim()) {
+    status.textContent = '请填写文件路径';
+    return;
+  }
+  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked });
   status.textContent = '已保存';
   setTimeout(() => { status.textContent = ''; }, 1500);
 });
