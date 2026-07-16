@@ -10,8 +10,14 @@
     <main id="panel" data-theme="sand">
       <header class="header">
         <h1>本页高亮剪藏 <span id="count"></span></h1>
-        <div class="header-actions"><button id="settings" type="button">设置</button><button id="exit" type="button" aria-label="关闭侧边栏">×</button></div>
+        <div class="header-actions"><button id="settings" type="button">设置</button></div>
       </header>
+      <div class="themes" aria-label="侧边栏背景色">
+        <span>背景色</span>
+        <button class="theme-swatch sand" type="button" data-theme="sand" aria-label="米色"></button>
+        <button class="theme-swatch light" type="button" data-theme="light" aria-label="浅色"></button>
+        <button class="theme-swatch dusk" type="button" data-theme="dusk" aria-label="深色"></button>
+      </div>
       <button id="mode" class="mode" type="button" title="点击切换高亮选择模式"><span>选择模式</span><span class="switch"><i>开</i><i>关</i></span></button>
       <ul id="list"></ul>
       <footer>

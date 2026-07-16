@@ -28,6 +28,9 @@ function render() {
   count.textContent = highlights.length ? `(${highlights.length})` : '';
   mode.classList.toggle('active', selectionMode);
   mode.setAttribute('aria-pressed', String(selectionMode));
+  document.querySelectorAll('.theme-swatch').forEach((button) => {
+    button.classList.toggle('active', button.dataset.theme === panel.dataset.theme);
+  });
   [save, copy, clear].forEach((button) => { button.disabled = highlights.length === 0; });
   list.innerHTML = highlights.length
     ? highlights.map((item) => `<li class="item"><span>${escapeHtml(item.text)}</span><button class="delete" type="button" data-id="${item.id}" aria-label="删除">×</button></li>`).join('')
@@ -78,15 +81,12 @@ save.addEventListener('click', async () => {
   link.click();
 });
 document.querySelector('#settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
-document.querySelector('#exit').addEventListener('click', async () => {
-  const current = await chrome.windows.getCurrent();
-  await chrome.sidePanel.close({ windowId: current.id }).catch(() => window.close());
-});
+document.querySelectorAll('.theme-swatch').forEach((button) => button.addEventListener('click', () => chrome.storage.sync.set({ panelTheme: button.dataset.theme })));
 chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'local' || area === 'session') refresh();
-  if (area === 'sync') chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => { panel.dataset.theme = settings.panelTheme; });
+  if (area === 'sync') chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => { panel.dataset.theme = settings.panelTheme; render(); });
 });
 chrome.tabs.onActivated.addListener(refresh);
 chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => { if (changeInfo.status === 'complete') refresh(); });
-chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => { panel.dataset.theme = settings.panelTheme; });
+chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => { panel.dataset.theme = settings.panelTheme; render(); });
 refresh();
