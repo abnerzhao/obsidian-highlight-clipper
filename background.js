@@ -1,8 +1,4 @@
-function openSidePanel(windowId) {
-  return chrome.sidePanel.open({ windowId }).catch((error) => console.error('无法打开侧边栏：', error));
-}
-
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error('无法配置侧边栏：', error));
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error) => console.error('无法配置侧边栏：', error));
 
 async function sendToContentScript(tabId, message) {
   try {
@@ -30,16 +26,6 @@ async function toggleSelectionMode(tabId) {
   const data = await chrome.storage.session.get({ selectionModes: {} });
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
-
-async function enableSelectionMode(tabId) {
-  return setSelectionMode(tabId, true);
-}
-
-chrome.action.onClicked.addListener((tab) => {
-  if (!tab.id) return;
-  openSidePanel(tab.windowId);
-  enableSelectionMode(tab.id);
-});
 
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
