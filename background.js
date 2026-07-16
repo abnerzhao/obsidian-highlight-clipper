@@ -4,12 +4,22 @@ function openSidePanel(windowId) {
 
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error('无法配置侧边栏：', error));
 
+async function sendToContentScript(tabId, message) {
+  try {
+    return await chrome.tabs.sendMessage(tabId, message);
+  } catch (error) {
+    if (!error.message?.includes('Receiving end does not exist')) throw error;
+    await chrome.scripting.insertCSS({ target: { tabId }, files: ['content.css'] });
+    await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
+    return chrome.tabs.sendMessage(tabId, message);
+  }
+}
+
 async function setSelectionMode(tabId, selectionMode) {
   try {
-    const result = await chrome.tabs.sendMessage(tabId, { type: 'SET_SELECTION_MODE', selectionMode });
     const data = await chrome.storage.session.get({ selectionModes: {} });
     await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: selectionMode } });
-    return result;
+    return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode });
   } catch (error) {
     console.error('无法切换高亮选择模式：', error);
     return { selectionMode: false };
