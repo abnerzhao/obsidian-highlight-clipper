@@ -1,31 +1,33 @@
 # Obsidian Highlight Clipper
 
-Capture what matters from the web, straight into Obsidian.
+[English](README.en.md)
 
-## Features
+把网页中值得留下的内容，直接沉淀到 Obsidian。
 
-- Uses Chrome's native Side Panel, so it never overlays or changes the webpage layout.
-- Supports multiple highlights per page, ordered by their position in the article.
-- Saves all clippings as Markdown blockquotes to an Obsidian daily note or custom file.
-- Supports English and Simplified Chinese UI.
-- Supports sidebar themes: follow browser, sand, light, and dark.
+## 功能
 
-## Install
+- 使用 Chrome 原生侧边栏，不遮挡或改动网页布局。
+- 支持单页多处高亮，并按内容在文章中的顺序排列。
+- 将全部剪藏以 Markdown 引用块追加到 Obsidian 日志或自定义文件。
+- 支持简体中文和英文界面。
+- 侧边栏支持跟随浏览器、米色、浅色和深色外观。
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**, then choose **Load unpacked**.
-3. Select this project directory.
-4. Click the extension icon to enable selection mode and open the sidebar.
+## 安装
 
-## Usage
+1. 打开 `chrome://extensions`。
+2. 开启「开发者模式」，选择「加载已解压的扩展程序」。
+3. 选择本项目目录。
+4. 点击扩展图标，即可进入选择模式并打开侧边栏。
 
-- Press `Control + Shift + H` on macOS, or `Alt + Shift + H` on Windows/Linux, to toggle selection mode. When enabled, selecting text creates a highlight.
-- Use the gear icon in the sidebar to configure the save location, source link, appearance, and language.
-- The sidebar keeps highlights scoped to the active page. Selection mode is scoped to each tab.
+## 使用
 
-### Custom file date variables
+- macOS 按 `Control + Shift + H`，Windows/Linux 按 `Alt + Shift + H`，可切换选择模式。开启后，选中文字即可高亮。
+- 通过侧边栏右上角齿轮设置保存位置、原文链接、外观和语言。
+- 高亮内容按当前页面保存；选择模式按 Tab 独立。
 
-Custom file paths may use the following local-date variables:
+### 自定义文件日期变量
+
+自定义文件路径支持以下本地日期变量：
 
 - `{{YYYY}}`
 - `{{MM}}`
@@ -33,10 +35,10 @@ Custom file paths may use the following local-date variables:
 - `{{YYYY-MM-DD}}`
 - `{{YYYY/MM/DD}}`
 
-For example: `Inbox/{{YYYY/MM/DD}} Highlights.md`.
+示例：`Inbox/{{YYYY/MM/DD}} Highlights.md`。
 
-## Notes
+## 注意事项
 
-- Highlights save text only; they are not restored to their original page positions after a refresh.
-- Daily notes use `obsidian://daily`; custom files use `obsidian://new`. Obsidian must be installed and registered to handle `obsidian://` links.
-- Chrome may require confirmation the first time it opens Obsidian. The **Copy** button is available as a fallback.
+- 高亮仅保存文本，刷新页面后不会自动回到原文位置。
+- 日志使用 `obsidian://daily`，自定义文件使用 `obsidian://new`；系统需要安装并注册 Obsidian。
+- 首次打开 Obsidian 时，Chrome 可能要求确认；「复制」可作为备用方式。
