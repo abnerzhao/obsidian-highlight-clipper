@@ -1,17 +1,42 @@
 # Obsidian Highlight Clipper
 
-一个 Manifest V3 Chrome 扩展：网页内多处高亮，并批量剪藏到 Obsidian。
+An MV3 Chrome extension for collecting multiple web highlights and appending them to Obsidian.
 
-## 使用
+## Features
 
-1. 打开 `chrome://extensions`，开启开发者模式，选择「加载已解压的扩展程序」。
-2. 选择本项目目录。
-3. 点击扩展图标即可进入选择模式并打开浏览器原生侧边栏；它由 Chrome 单独分栏展示，不会遮挡或改变网页的 DOM 与布局。
-4. 在网页内按 `Control + Shift + H`（macOS）或 `Alt + Shift + H`（其他平台）进入高亮选择模式并打开侧边栏；此后鼠标选中即高亮，再按一次退出。
-5. 在侧边栏点击「设置」配置保存位置和背景色；默认跟随浏览器外观。
+- Uses Chrome's native Side Panel, so it never overlays or changes the webpage layout.
+- Supports multiple highlights per page, ordered by their position in the article.
+- Saves all clippings as Markdown blockquotes to an Obsidian daily note or custom file.
+- Supports English and Simplified Chinese UI.
+- Supports sidebar themes: follow browser, sand, light, and dark.
 
-## 当前限制
+## Install
 
-- 高亮仅保存文本，不会在刷新后重新定位、还原页面标记。
-- 默认日志使用 `obsidian://daily`，自定义文件使用 `obsidian://new`；保存内容以追加方式写入，需要系统已安装并可唤起 Obsidian。「复制」按钮可作为兜底。
-- 首次唤起 Obsidian 时，Chrome 可能出于安全策略要求确认；该系统级确认无法由扩展跳过，确认后不会打开额外的 Chrome 标签页。
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**, then choose **Load unpacked**.
+3. Select this project directory.
+4. Click the extension icon to enable selection mode and open the sidebar.
+
+## Usage
+
+- Press `Control + Shift + H` on macOS, or `Alt + Shift + H` on Windows/Linux, to toggle selection mode. When enabled, selecting text creates a highlight.
+- Use the gear icon in the sidebar to configure the save location, source link, appearance, and language.
+- The sidebar keeps highlights scoped to the active page. Selection mode is scoped to each tab.
+
+### Custom file date variables
+
+Custom file paths may use the following local-date variables:
+
+- `{{YYYY}}`
+- `{{MM}}`
+- `{{DD}}`
+- `{{YYYY-MM-DD}}`
+- `{{YYYY/MM/DD}}`
+
+For example: `Inbox/{{YYYY/MM/DD}} Highlights.md`.
+
+## Notes
+
+- Highlights save text only; they are not restored to their original page positions after a refresh.
+- Daily notes use `obsidian://daily`; custom files use `obsidian://new`. Obsidian must be installed and registered to handle `obsidian://` links.
+- Chrome may require confirmation the first time it opens Obsidian. The **Copy** button is available as a fallback.
