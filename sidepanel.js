@@ -95,7 +95,7 @@ async function toggleMode() {
 
 function markdown() {
   const source = saveSettings.includeSource ? `\n>\n> ${translations[language].source}: [${activeTab.title}](${activeTab.url})` : '';
-  return `${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n`;
+  return `---\n\n${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n`;
 }
 
 function applySettings(settings) {
