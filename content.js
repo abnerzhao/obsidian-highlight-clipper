@@ -7,6 +7,14 @@
   const cssHighlight = new Highlight();
   const pageKey = location.href;
 
+  function applyHighlightStyle(settings) {
+    const root = document.documentElement.style;
+    const isUnderline = settings.highlightStyle === 'underline';
+    root.setProperty('--oh-highlight-background', isUnderline ? 'transparent' : '#fef08a');
+    root.setProperty('--oh-highlight-decoration-line', isUnderline ? 'underline' : 'none');
+    root.setProperty('--oh-highlight-underline-color', settings.underlineColor);
+  }
+
   async function loadHighlights() {
     const data = await chrome.storage.local.get(STORAGE_KEY);
     highlights = data[STORAGE_KEY]?.[pageKey] ?? [];
@@ -89,6 +97,12 @@
   });
 
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
+  chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#7c3aed' }).then(applyHighlightStyle);
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && (changes.highlightStyle || changes.underlineColor)) {
+      chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#7c3aed' }).then(applyHighlightStyle);
+    }
+  });
   chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' })
     .then((state) => { selectionMode = Boolean(state.selectionMode); })
     .catch(() => {});

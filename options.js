@@ -4,13 +4,16 @@ const customFileField = document.querySelector('#customFileField');
 const includeSource = document.querySelector('#includeSource');
 const status = document.querySelector('#status');
 const language = document.querySelector('#language');
+const highlightStyles = document.querySelectorAll('input[name="highlightStyle"]');
+const underlineColor = document.querySelector('#underlineColor');
+const underlineColorField = document.querySelector('#underlineColorField');
 
 const copy = {
   en: {
-    intro: 'Saving appends all highlights from the current page to the selected note.', language: 'Language', saveLocation: 'Save location', daily: 'Obsidian daily note', custom: 'Custom file', filePath: 'File path', tokens: 'Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}', source: 'Include source link', appearance: 'Sidebar appearance', auto: 'Follow browser', sand: 'Sand', light: 'Light', dark: 'Dark', save: 'Save settings', missingPath: 'Enter a file path', saved: 'Saved'
+    intro: 'Saving appends all highlights from the current page to the selected note.', language: 'Language', saveLocation: 'Save location', daily: 'Obsidian daily note', custom: 'Custom file', filePath: 'File path', tokens: 'Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}', source: 'Include source link', highlight: 'Highlight appearance', background: 'Background', underline: 'Underline', underlineColor: 'Underline color', appearance: 'Sidebar appearance', auto: 'Follow browser', sand: 'Sand', light: 'Light', dark: 'Dark', save: 'Save settings', missingPath: 'Enter a file path', saved: 'Saved'
   },
   'zh-CN': {
-    intro: '每次保存会把当前页面的全部剪藏追加到所选笔记。', language: '语言', saveLocation: '保存位置', daily: 'Obsidian 每日笔记', custom: '自定义文件', filePath: '文件路径', tokens: '支持：{{YYYY}}、{{MM}}、{{DD}}、{{YYYY-MM-DD}}、{{YYYY/MM/DD}}', source: '携带原文链接', appearance: '侧边栏外观', auto: '跟随浏览器', sand: '米色', light: '浅色', dark: '深色', save: '保存设置', missingPath: '请填写文件路径', saved: '已保存'
+    intro: '每次保存会把当前页面的全部剪藏追加到所选笔记。', language: '语言', saveLocation: '保存位置', daily: 'Obsidian 每日笔记', custom: '自定义文件', filePath: '文件路径', tokens: '支持：{{YYYY}}、{{MM}}、{{DD}}、{{YYYY-MM-DD}}、{{YYYY/MM/DD}}', source: '携带原文链接', highlight: '高亮样式', background: '背景高亮', underline: '下划线', underlineColor: '下划线颜色', appearance: '侧边栏外观', auto: '跟随浏览器', sand: '米色', light: '浅色', dark: '深色', save: '保存设置', missingPath: '请填写文件路径', saved: '已保存'
   }
 };
 
@@ -25,6 +28,10 @@ function applyLanguage(value) {
   document.querySelector('#filePathLabel').textContent = text.filePath;
   document.querySelector('#tokensHint').textContent = text.tokens;
   document.querySelector('#sourceLabel').textContent = text.source;
+  document.querySelector('#highlightLegend').textContent = text.highlight;
+  document.querySelector('#backgroundHighlightLabel').textContent = text.background;
+  document.querySelector('#underlineHighlightLabel').textContent = text.underline;
+  document.querySelector('#underlineColorLabel').textContent = text.underlineColor;
   document.querySelector('#appearanceLegend').textContent = text.appearance;
   document.querySelector('#autoThemeLabel').textContent = text.auto;
   document.querySelector('#sandThemeLabel').textContent = text.sand;
@@ -37,28 +44,37 @@ function toggleCustomFile() {
   customFileField.hidden = document.querySelector('input[name="saveMode"]:checked').value !== 'custom';
 }
 
-chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' }).then((settings) => {
+function toggleUnderlineColor() {
+  underlineColorField.hidden = document.querySelector('input[name="highlightStyle"]:checked').value !== 'underline';
+}
+
+chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, highlightStyle: 'background', underlineColor: '#7c3aed', panelTheme: 'auto', language: 'en' }).then((settings) => {
   document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
   customFile.value = settings.customFile;
   includeSource.checked = settings.includeSource;
+  document.querySelector(`input[name="highlightStyle"][value="${settings.highlightStyle}"]`).checked = true;
+  underlineColor.value = settings.underlineColor;
   language.value = settings.language;
   document.querySelector(`input[name="panelTheme"][value="${settings.panelTheme}"]`).checked = true;
   toggleCustomFile();
+  toggleUnderlineColor();
   applyLanguage(settings.language);
 });
 
 saveModes.forEach((input) => input.addEventListener('change', toggleCustomFile));
+highlightStyles.forEach((input) => input.addEventListener('change', toggleUnderlineColor));
 language.addEventListener('change', () => applyLanguage(language.value));
 
 document.querySelector('#save').addEventListener('click', async () => {
   const saveMode = document.querySelector('input[name="saveMode"]:checked').value;
   const panelTheme = document.querySelector('input[name="panelTheme"]:checked').value;
+  const highlightStyle = document.querySelector('input[name="highlightStyle"]:checked').value;
   const text = copy[language.value];
   if (saveMode === 'custom' && !customFile.value.trim()) {
     status.textContent = text.missingPath;
     return;
   }
-  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, panelTheme, language: language.value });
+  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, highlightStyle, underlineColor: underlineColor.value, panelTheme, language: language.value });
   status.textContent = text.saved;
   setTimeout(() => { status.textContent = ''; }, 1500);
 });

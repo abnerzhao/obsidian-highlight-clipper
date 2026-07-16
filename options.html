@@ -14,6 +14,12 @@
       </fieldset>
       <label class="checkbox"><input id="includeSource" type="checkbox"><span id="sourceLabel">Include source link</span></label>
       <fieldset>
+        <legend id="highlightLegend">Highlight appearance</legend>
+        <label class="radio"><input type="radio" name="highlightStyle" value="background"><span id="backgroundHighlightLabel">Background</span></label>
+        <label class="radio"><input type="radio" name="highlightStyle" value="underline"><span id="underlineHighlightLabel">Underline</span></label>
+        <label id="underlineColorField"><span id="underlineColorLabel">Underline color</span><input id="underlineColor" type="color" value="#7c3aed"></label>
+      </fieldset>
+      <fieldset>
         <legend id="appearanceLegend">Sidebar appearance</legend>
         <label class="radio"><input type="radio" name="panelTheme" value="auto"><span id="autoThemeLabel">Follow browser</span></label>
         <label class="radio"><input type="radio" name="panelTheme" value="sand"><span id="sandThemeLabel">Sand</span></label>

@@ -1,4 +1,8 @@
 ::highlight(obsidian-highlighter) {
-  background-color: #fef08a;
+  background-color: var(--oh-highlight-background, #fef08a);
   color: inherit;
+  text-decoration-line: var(--oh-highlight-decoration-line, none);
+  text-decoration-color: var(--oh-highlight-underline-color, currentColor);
+  text-decoration-style: solid;
+  text-decoration-thickness: 2px;
 }
