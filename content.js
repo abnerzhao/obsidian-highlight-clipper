@@ -29,7 +29,7 @@
     panel.hidden = true;
     panel.innerHTML = `
       <header class="oh-header">
-        <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><button class="oh-mode" type="button"></button></h2>
+        <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
         <button class="oh-collapse" type="button" aria-label="收起">›</button>
       </header>
       <ul class="oh-list"></ul>
@@ -58,12 +58,12 @@
     const list = panel.querySelector('.oh-list');
     panel.querySelector('.oh-count').textContent = highlights.length ? `(${highlights.length})` : '';
     const mode = panel.querySelector('.oh-mode');
-    mode.textContent = selectionMode ? '选择模式：开' : '选择模式：关';
     mode.classList.toggle('active', selectionMode);
+    mode.setAttribute('aria-pressed', String(selectionMode));
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
-      : '<li class="oh-empty">macOS：Control + Shift + H。Windows/Linux：Alt + Shift + H。按一次开启选择模式，选中文本即可高亮；再按一次退出。</li>';
+      : `<li class="oh-empty"><strong>还没有高亮内容</strong><span>按快捷键开启选择模式后，选中文本即可剪藏。</span><kbd>macOS：Control + Shift + H</kbd><kbd>Windows/Linux：Alt + Shift + H</kbd><span>再按一次快捷键，或点击上方开关即可退出。</span></li>`;
     list.querySelectorAll('.oh-delete').forEach((button) => button.addEventListener('click', async () => {
       removeHighlightAt(Number(button.dataset.index));
       await saveHighlights();

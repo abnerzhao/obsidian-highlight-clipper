@@ -30,14 +30,19 @@
 #oh-panel * { box-sizing: border-box; }
 #oh-panel[hidden] { display: none; }
 .oh-header { display: flex; flex: none; align-items: center; justify-content: space-between; min-height: 54px; padding: 12px 14px; border-bottom: 1px solid var(--oh-line); }
-.oh-title { margin: 0; font-size: 15px !important; font-weight: 700 !important; }
-.oh-mode { display: inline-block; margin-left: 6px; padding: 1px 6px; color: var(--oh-muted); background: var(--oh-subtle); border: 0; border-radius: 999px; cursor: pointer; font-size: 11px !important; font-weight: 600; }
-.oh-mode.active { color: #166534; background: #dcfce7; }
+.oh-title { display: flex; align-items: center; gap: 5px; margin: 0; font-size: 15px !important; font-weight: 700 !important; }
+.oh-mode-label { margin-left: 3px; color: var(--oh-muted); font-size: 11px !important; font-weight: 600; }
+.oh-mode { display: inline-flex; padding: 2px; color: var(--oh-muted); background: var(--oh-subtle); border: 0; border-radius: 999px; cursor: pointer; font-size: 10px !important; font-weight: 700; }
+.oh-mode span { padding: 1px 5px; border-radius: 999px; }
+.oh-mode.active span:first-child { color: #166534; background: #dcfce7; }
+.oh-mode:not(.active) span:last-child { color: var(--oh-text); background: var(--oh-surface); box-shadow: 0 1px 2px rgb(15 23 42 / 14%); }
 .oh-collapse, .oh-delete { border: 0; background: transparent; cursor: pointer; color: var(--oh-muted); font-size: 18px; }
 .oh-list { flex: 1; min-height: 0; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .oh-item { display: flex; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--oh-line); }
 .oh-item-text { flex: 1; overflow-wrap: anywhere; font-size: 12px !important; font-weight: 400 !important; line-height: 1.5 !important; }
-.oh-empty { padding: 24px 16px; color: var(--oh-muted); text-align: center; }
+.oh-empty { display: grid; gap: 8px; padding: 24px 20px; color: var(--oh-muted); text-align: center; }
+.oh-empty strong { color: var(--oh-text); font-size: 13px; }
+.oh-empty kbd { justify-self: center; padding: 3px 7px; color: var(--oh-text); background: var(--oh-subtle); border: 1px solid var(--oh-line); border-radius: 5px; font: 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace; }
 .oh-footer { display: flex; flex: none; flex-wrap: wrap; gap: 8px; padding: 12px 14px; border-top: 1px solid var(--oh-line); background: var(--oh-surface); }
 .oh-button { flex: 1; padding: 8px 10px; color: #fff; background: var(--oh-accent); border: 0; border-radius: 7px; cursor: pointer; font-size: 12px !important; font-weight: 650; }
 .oh-button:disabled { opacity: .45; cursor: not-allowed; }
