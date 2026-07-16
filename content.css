@@ -31,17 +31,19 @@
 #oh-panel * { box-sizing: border-box; }
 #oh-panel[hidden] { display: none; }
 .oh-header { display: flex; flex: none; align-items: center; justify-content: space-between; min-height: 54px; padding: 12px 14px; border-bottom: 1px solid var(--oh-line); }
-.oh-title { display: flex; align-items: center; gap: 5px; margin: 0; font-size: 15px !important; font-weight: 700 !important; }
+.oh-title { display: flex; flex: 1; min-width: 0; align-items: center; gap: 5px; margin: 0; white-space: nowrap; font-size: 15px !important; font-weight: 700 !important; }
 .oh-mode-label { margin-left: 3px; color: var(--oh-muted); font-size: 11px !important; font-weight: 600; }
 .oh-mode { display: inline-flex; padding: 2px; color: var(--oh-muted); background: var(--oh-subtle); border: 0; border-radius: 999px; cursor: pointer; font-size: 10px !important; font-weight: 700; }
 .oh-mode span { padding: 1px 5px; border-radius: 999px; }
 .oh-mode.active span:first-child { color: #166534; background: #dcfce7; }
 .oh-mode:not(.active) span:last-child { color: var(--oh-text); background: var(--oh-surface); box-shadow: 0 1px 2px rgb(15 23 42 / 14%); }
-.oh-header-actions { display: flex; align-items: center; gap: 4px; }
-.oh-pin, .oh-exit, .oh-delete { border: 0; background: transparent; cursor: pointer; color: var(--oh-muted); font-size: 11px; }
-.oh-pin { padding: 5px 7px; border: 1px solid var(--oh-line); border-radius: 5px; }
-.oh-pin.active { color: var(--oh-text); background: var(--oh-subtle); }
-.oh-exit { padding: 5px 4px; }
+.oh-header-actions { display: flex; flex: none; align-items: center; gap: 6px; margin-left: 8px; }
+.oh-icon-button, .oh-delete { border: 0; background: transparent; cursor: pointer; color: var(--oh-muted); }
+.oh-icon-button { display: grid; width: 30px; height: 30px; place-items: center; padding: 0; border-radius: 6px; font-size: 17px; line-height: 1; }
+.oh-pin { font-size: 15px; filter: grayscale(1); }
+.oh-pin.active { background: var(--oh-subtle); filter: none; }
+.oh-exit { font-size: 25px; font-weight: 300; }
+.oh-icon-button:hover { color: var(--oh-text); background: var(--oh-subtle); }
 .oh-list { flex: 1; min-height: 0; margin: 0; padding: 0; overflow-y: auto; list-style: none; }
 .oh-item { display: flex; gap: 8px; padding: 11px 14px; border-bottom: 1px solid var(--oh-line); }
 .oh-item-text { flex: 1; overflow-wrap: anywhere; font-size: 12px !important; font-weight: 400 !important; line-height: 1.5 !important; }

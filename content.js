@@ -31,7 +31,7 @@
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
-        <div class="oh-header-actions"><button class="oh-pin" type="button" title="固定侧边栏"></button><button class="oh-exit" type="button" title="退出侧边栏">退出</button></div>
+        <div class="oh-header-actions"><button class="oh-pin oh-icon-button" type="button" title="固定侧边栏" aria-label="固定侧边栏">📌</button><button class="oh-exit oh-icon-button" type="button" title="退出侧边栏" aria-label="退出侧边栏">×</button></div>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
@@ -67,8 +67,8 @@
     mode.classList.toggle('active', selectionMode);
     mode.setAttribute('aria-pressed', String(selectionMode));
     const pin = panel.querySelector('.oh-pin');
-    pin.textContent = panelPinned ? '已固定' : '固定';
     pin.classList.toggle('active', panelPinned);
+    pin.setAttribute('aria-pressed', String(panelPinned));
     pin.setAttribute('title', panelPinned ? '取消固定侧边栏' : '固定侧边栏');
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
