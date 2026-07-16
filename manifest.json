@@ -3,7 +3,7 @@
   "name": "Obsidian Highlight Clipper",
   "description": "在网页中高亮文本，并批量剪藏到 Obsidian。",
   "version": "0.1.0",
-  "minimum_chrome_version": "141",
+  "minimum_chrome_version": "116",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel"],
   "action": {
     "default_title": "Obsidian Highlight Clipper"
