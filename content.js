@@ -4,6 +4,7 @@
   let highlights = [];
   let panel;
   let selectionMode = false;
+  let panelPinned = true;
   let panelTheme = 'sand';
   const rangesById = new Map();
   const cssHighlight = new Highlight();
@@ -30,11 +31,12 @@
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
-        <button class="oh-collapse" type="button" aria-label="收起">›</button>
+        <div class="oh-header-actions"><button class="oh-pin" type="button" title="固定侧边栏"></button><button class="oh-exit" type="button" title="退出侧边栏">退出</button></div>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
-    panel.querySelector('.oh-collapse').addEventListener('click', togglePanelCollapse);
+    panel.querySelector('.oh-pin').addEventListener('click', togglePanelPin);
+    panel.querySelector('.oh-exit').addEventListener('click', exitPanel);
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
     panel.querySelector('.oh-clear').addEventListener('click', clearHighlights);
@@ -42,11 +44,15 @@
     document.documentElement.append(panel);
   }
 
-  function togglePanelCollapse() {
-    const collapsed = panel.classList.toggle('is-collapsed');
-    const button = panel.querySelector('.oh-collapse');
-    button.textContent = collapsed ? '‹' : '›';
-    button.setAttribute('aria-label', collapsed ? '展开' : '收起');
+  function togglePanelPin() {
+    panelPinned = !panelPinned;
+    renderPanel();
+  }
+
+  function exitPanel() {
+    selectionMode = false;
+    panel.hidden = true;
+    renderPanel();
   }
 
   function applyPanelTheme() {
@@ -60,6 +66,10 @@
     const mode = panel.querySelector('.oh-mode');
     mode.classList.toggle('active', selectionMode);
     mode.setAttribute('aria-pressed', String(selectionMode));
+    const pin = panel.querySelector('.oh-pin');
+    pin.textContent = panelPinned ? '已固定' : '固定';
+    pin.classList.toggle('active', panelPinned);
+    pin.setAttribute('title', panelPinned ? '取消固定侧边栏' : '固定侧边栏');
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
@@ -133,14 +143,10 @@
     selectionMode = !selectionMode;
     renderPanel();
     if (!selectionMode) {
-      panel.hidden = true;
+      if (!panelPinned) panel.hidden = true;
       return;
     }
     panel.hidden = false;
-    panel.classList.remove('is-collapsed');
-    const button = panel.querySelector('.oh-collapse');
-    button.textContent = '›';
-    button.setAttribute('aria-label', '收起');
   }
 
   function openObsidian(url) {
