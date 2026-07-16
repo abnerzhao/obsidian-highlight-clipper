@@ -2,6 +2,7 @@ let activeTab;
 let highlights = [];
 let selectionMode = false;
 let language = 'en';
+let saveSettings = { saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
 const translations = {
   en: { title: 'Page highlights', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No highlights yet', emptyBody: 'Turn on selection mode, then select text on the page.', source: 'Source', delete: 'Delete' },
@@ -92,35 +93,46 @@ async function toggleMode() {
   render();
 }
 
-async function markdownAndSettings() {
-  const settings = await chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true });
-  const source = settings.includeSource ? `\n>\n> ${translations[language].source}: [${activeTab.title}](${activeTab.url})` : '';
-  return { settings, markdown: `${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n` };
+function markdown() {
+  const source = saveSettings.includeSource ? `\n>\n> ${translations[language].source}: [${activeTab.title}](${activeTab.url})` : '';
+  return `${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n`;
+}
+
+function applySettings(settings) {
+  saveSettings = { ...saveSettings, ...settings };
+  panel.dataset.theme = saveSettings.panelTheme;
+  applyLanguage(saveSettings.language);
+}
+
+function openObsidian(url) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.hidden = true;
+  document.body.append(link);
+  link.click();
+  link.remove();
 }
 
 mode.addEventListener('click', toggleMode);
 clear.addEventListener('click', () => sendToPage({ type: 'CLEAR_HIGHLIGHTS' }));
 copy.addEventListener('click', async () => {
-  const { markdown } = await markdownAndSettings();
-  await navigator.clipboard.writeText(markdown);
+  await navigator.clipboard.writeText(markdown());
   copy.textContent = translations[language].copied;
   setTimeout(() => { copy.textContent = translations[language].copy; }, 1500);
 });
-save.addEventListener('click', async () => {
-  const { settings, markdown } = await markdownAndSettings();
-  const url = settings.saveMode === 'daily'
-    ? `obsidian://daily?append=true&content=${encodeURIComponent(markdown)}`
-    : `obsidian://new?file=${encodeURIComponent(resolveFilePath(settings.customFile.trim()))}&append=true&content=${encodeURIComponent(markdown)}`;
-  const link = document.createElement('a');
-  link.href = url;
-  link.click();
+save.addEventListener('click', () => {
+  const content = markdown();
+  const url = saveSettings.saveMode === 'daily'
+    ? `obsidian://daily?append=true&content=${encodeURIComponent(content)}`
+    : `obsidian://new?file=${encodeURIComponent(resolveFilePath(saveSettings.customFile.trim()))}&append=true&content=${encodeURIComponent(content)}`;
+  openObsidian(url);
 });
 document.querySelector('#settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
 chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'local' || area === 'session') refresh();
-  if (area === 'sync') chrome.storage.sync.get({ panelTheme: 'auto', language: 'en' }).then((settings) => { panel.dataset.theme = settings.panelTheme; applyLanguage(settings.language); });
+  if (area === 'sync') chrome.storage.sync.get(saveSettings).then(applySettings);
 });
 chrome.tabs.onActivated.addListener(refresh);
 chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => { if (changeInfo.status === 'complete') refresh(); });
-chrome.storage.sync.get({ panelTheme: 'auto', language: 'en' }).then((settings) => { panel.dataset.theme = settings.panelTheme; applyLanguage(settings.language); });
+chrome.storage.sync.get(saveSettings).then(applySettings);
 refresh();
