@@ -1,6 +1,6 @@
 # Obsidian Highlight Clipper
 
-An MV3 Chrome extension for collecting multiple web highlights and appending them to Obsidian.
+Capture what matters from the web, straight into Obsidian.
 
 ## Features
 
