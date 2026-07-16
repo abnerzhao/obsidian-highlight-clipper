@@ -15,8 +15,20 @@
     root.setProperty('--oh-highlight-underline-color', settings.underlineColor);
   }
 
+  function wasPageReloaded() {
+    const navigation = performance.getEntriesByType('navigation')[0];
+    return navigation?.type === 'reload';
+  }
+
   async function loadHighlights() {
     const data = await chrome.storage.local.get(STORAGE_KEY);
+    if (wasPageReloaded()) {
+      const highlightsByPage = { ...(data[STORAGE_KEY] ?? {}) };
+      delete highlightsByPage[pageKey];
+      await chrome.storage.local.set({ [STORAGE_KEY]: highlightsByPage });
+      highlights = [];
+      return;
+    }
     highlights = data[STORAGE_KEY]?.[pageKey] ?? [];
     restoreHighlightRanges();
   }
