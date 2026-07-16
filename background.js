@@ -38,6 +38,10 @@ if (chrome.sidePanel.onOpened) {
   });
 }
 
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.id) setSelectionMode(tab.id, true);
+});
+
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
@@ -58,6 +62,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     chrome.storage.session.get({ selectionModes: {} }).then((data) => {
       sendResponse({ selectionMode: Boolean(data.selectionModes[sender.tab.id]) });
     });
+    return true;
+  }
+  if (message.type === 'ENABLE_SELECTION_MODE_FOR_ACTIVE_TAB') {
+    chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
+      if (!tab?.id) return { selectionMode: false };
+      return setSelectionMode(tab.id, true);
+    }).then(sendResponse);
+    return true;
+  }
+  if (message.type === 'OPEN_OBSIDIAN' && message.tabId && message.url) {
+    chrome.tabs.update(message.tabId, { url: message.url }).then(
+      () => sendResponse({ ok: true }),
+      (error) => sendResponse({ ok: false, error: error.message })
+    );
     return true;
   }
 });

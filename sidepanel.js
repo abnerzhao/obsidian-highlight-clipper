@@ -104,10 +104,6 @@ function applySettings(settings) {
   applyLanguage(saveSettings.language);
 }
 
-function openObsidian(url) {
-  window.location.assign(url);
-}
-
 mode.addEventListener('click', toggleMode);
 clear.addEventListener('click', () => sendToPage({ type: 'CLEAR_HIGHLIGHTS' }));
 copy.addEventListener('click', async () => {
@@ -115,12 +111,13 @@ copy.addEventListener('click', async () => {
   copy.textContent = translations[language].copied;
   setTimeout(() => { copy.textContent = translations[language].copy; }, 1500);
 });
-save.addEventListener('click', () => {
+save.addEventListener('click', async () => {
   const content = markdown();
   const url = saveSettings.saveMode === 'daily'
     ? `obsidian://daily?append=true&content=${encodeURIComponent(content)}`
     : `obsidian://new?file=${encodeURIComponent(resolveFilePath(saveSettings.customFile.trim()))}&append=true&content=${encodeURIComponent(content)}`;
-  openObsidian(url);
+  const result = await chrome.runtime.sendMessage({ type: 'OPEN_OBSIDIAN', tabId: activeTab.id, url });
+  if (!result.ok) console.error('无法打开 Obsidian：', result.error);
 });
 document.querySelector('#settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
 chrome.storage.onChanged.addListener((_changes, area) => {
@@ -130,4 +127,5 @@ chrome.storage.onChanged.addListener((_changes, area) => {
 chrome.tabs.onActivated.addListener(refresh);
 chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => { if (changeInfo.status === 'complete') refresh(); });
 chrome.storage.sync.get(saveSettings).then(applySettings);
+chrome.runtime.sendMessage({ type: 'ENABLE_SELECTION_MODE_FOR_ACTIVE_TAB' }).catch(() => {});
 refresh();
