@@ -2,7 +2,7 @@
 
 [English](README.en.md)
 
-把网页中值得留下的内容，直接沉淀到 Obsidian。
+高亮网页中的关键片段，沉淀到 Obsidian。
 
 ## 功能
 

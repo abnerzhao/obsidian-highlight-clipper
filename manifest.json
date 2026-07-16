@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Obsidian Highlight Clipper",
-  "description": "Capture what matters from the web, straight into Obsidian.",
+  "description": "Highlight what matters on the web, then save it to Obsidian.",
   "version": "0.1.0",
   "minimum_chrome_version": "116",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel"],

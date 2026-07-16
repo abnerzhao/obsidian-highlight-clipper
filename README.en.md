@@ -2,7 +2,7 @@
 
 [中文](README.md)
 
-Capture what matters from the web, straight into Obsidian.
+Highlight what matters on the web, then save it to Obsidian.
 
 ## Features
 
