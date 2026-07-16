@@ -19,6 +19,13 @@
         "mac": "MacCtrl+Shift+H"
       },
       "description": "切换高亮选择模式"
+    },
+    "open-side-panel": {
+      "suggested_key": {
+        "default": "Alt+Shift+O",
+        "mac": "MacCtrl+Shift+O"
+      },
+      "description": "打开高亮剪藏侧边栏"
     }
   },
   "content_scripts": [

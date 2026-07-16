@@ -1,4 +1,4 @@
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch(() => {});
 
 async function toggleSelectionMode(tabId) {
   try {
@@ -12,10 +12,26 @@ async function toggleSelectionMode(tabId) {
   }
 }
 
+async function enableSelectionMode(tabId) {
+  try {
+    const state = await chrome.tabs.sendMessage(tabId, { type: 'GET_SELECTION_MODE' });
+    if (!state.selectionMode) return toggleSelectionMode(tabId);
+    await chrome.sidePanel.open({ tabId });
+    return state;
+  } catch {
+    return { selectionMode: false };
+  }
+}
+
+chrome.action.onClicked.addListener((tab) => {
+  if (tab.id) enableSelectionMode(tab.id);
+});
+
 chrome.commands.onCommand.addListener(async (command) => {
-  if (command !== 'highlight-selection') return;
   const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (tab?.id) await toggleSelectionMode(tab.id);
+  if (!tab?.id) return;
+  if (command === 'highlight-selection') await toggleSelectionMode(tab.id);
+  if (command === 'open-side-panel') await chrome.sidePanel.open({ tabId: tab.id });
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {

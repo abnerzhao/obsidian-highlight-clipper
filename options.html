@@ -12,6 +12,13 @@
         <label id="customFileField">文件路径<input id="customFile" placeholder="例如：Inbox/Web Highlights.md"></label>
       </fieldset>
       <label class="checkbox"><input id="includeSource" type="checkbox">携带原文链接</label>
+      <fieldset>
+        <legend>侧边栏背景色</legend>
+        <label class="radio"><input type="radio" name="panelTheme" value="auto">跟随浏览器外观</label>
+        <label class="radio"><input type="radio" name="panelTheme" value="sand">米色</label>
+        <label class="radio"><input type="radio" name="panelTheme" value="light">浅色</label>
+        <label class="radio"><input type="radio" name="panelTheme" value="dusk">深色</label>
+      </fieldset>
       <button id="save" type="button">保存设置</button><span id="status" role="status"></span>
     </main>
     <script src="options.js"></script>
