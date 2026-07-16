@@ -43,7 +43,6 @@ chrome.action.onClicked.addListener((tab) => {
 
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
-  openSidePanel(chrome.windows.WINDOW_ID_CURRENT);
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
     if (tab?.id) return toggleSelectionMode(tab.id);
     return undefined;
