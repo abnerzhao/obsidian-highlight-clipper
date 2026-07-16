@@ -105,12 +105,7 @@ function applySettings(settings) {
 }
 
 function openObsidian(url) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.hidden = true;
-  document.body.append(link);
-  link.click();
-  link.remove();
+  window.location.assign(url);
 }
 
 mode.addEventListener('click', toggleMode);
