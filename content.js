@@ -67,8 +67,8 @@
   }
 
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message.type === 'TOGGLE_SELECTION_MODE') {
-      selectionMode = !selectionMode;
+    if (message.type === 'SET_SELECTION_MODE') {
+      selectionMode = Boolean(message.selectionMode);
       sendResponse({ selectionMode });
       return;
     }
@@ -82,7 +82,6 @@
       clearHighlights().then(() => sendResponse({ ok: true }));
       return true;
     }
-    if (message.type === 'GET_SELECTION_MODE') sendResponse({ selectionMode });
   });
 
   document.addEventListener('mouseup', () => {
@@ -90,5 +89,8 @@
   });
 
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
+  chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' })
+    .then((state) => { selectionMode = Boolean(state.selectionMode); })
+    .catch(() => {});
   loadHighlights();
 })();

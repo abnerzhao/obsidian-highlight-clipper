@@ -49,7 +49,7 @@ async function sendToPage(message) {
 
 async function toggleMode() {
   if (!activeTab?.id) return;
-  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB', tabId: activeTab.id });
+  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB' });
   selectionMode = result.selectionMode;
   render();
 }
