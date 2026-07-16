@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian Highlight Clipper</title>
+    <link rel="stylesheet" href="sidepanel.css">
+  </head>
+  <body>
+    <main id="panel" data-theme="sand">
+      <header class="header">
+        <h1>本页高亮剪藏 <span id="count"></span></h1>
+        <div class="header-actions"><button id="settings" type="button">设置</button><button id="exit" type="button" aria-label="关闭侧边栏">×</button></div>
+      </header>
+      <button id="mode" class="mode" type="button" title="点击切换高亮选择模式"><span>选择模式</span><span class="switch"><i>开</i><i>关</i></span></button>
+      <ul id="list"></ul>
+      <footer>
+        <button id="save" class="primary" type="button">保存到 Obsidian</button>
+        <button id="copy" class="primary" type="button">复制</button>
+        <button id="clear" type="button">清除全部</button>
+      </footer>
+    </main>
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
