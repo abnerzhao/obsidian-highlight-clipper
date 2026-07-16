@@ -27,6 +27,17 @@ async function toggleSelectionMode(tabId) {
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
 
+async function enableSelectionModeForWindow(windowId) {
+  const [tab] = await chrome.tabs.query({ active: true, windowId });
+  if (tab?.id) await setSelectionMode(tab.id, true);
+}
+
+if (chrome.sidePanel.onOpened) {
+  chrome.sidePanel.onOpened.addListener(({ windowId }) => {
+    enableSelectionModeForWindow(windowId);
+  });
+}
+
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
