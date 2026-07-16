@@ -11,13 +11,13 @@
         <label class="radio"><input type="radio" name="saveMode" value="daily"><span id="dailyLabel">Obsidian daily note</span></label>
         <label class="radio"><input type="radio" name="saveMode" value="custom"><span id="customLabel">Custom file</span></label>
         <label id="customFileField"><span id="filePathLabel">File path</span><input id="customFile" placeholder="e.g. Inbox/{{YYYY/MM/DD}} Highlights.md"><small id="tokensHint">Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}</small></label>
+        <label class="checkbox"><input id="includeSource" type="checkbox"><span id="sourceLabel">Include source link</span></label>
       </fieldset>
-      <label class="checkbox"><input id="includeSource" type="checkbox"><span id="sourceLabel">Include source link</span></label>
       <fieldset>
         <legend id="highlightLegend">Highlight appearance</legend>
         <label class="radio"><input type="radio" name="highlightStyle" value="background"><span id="backgroundHighlightLabel">Background</span></label>
         <label class="radio"><input type="radio" name="highlightStyle" value="underline"><span id="underlineHighlightLabel">Underline</span></label>
-        <label id="underlineColorField"><span id="underlineColorLabel">Underline color</span><input id="underlineColor" type="color" value="#7c3aed"></label>
+        <div id="underlineColorField" class="color-field"><span id="underlineColorLabel">Underline color</span><div class="color-options" role="radiogroup" aria-label="Underline color"><label><input type="radio" name="underlineColor" value="#ef4444"><span class="color-swatch red"></span></label><label><input type="radio" name="underlineColor" value="#fb7185"><span class="color-swatch pink"></span></label><label><input type="radio" name="underlineColor" value="#a78bfa"><span class="color-swatch purple"></span></label><label><input type="radio" name="underlineColor" value="#60a5fa"><span class="color-swatch blue"></span></label><label><input type="radio" name="underlineColor" value="#5dcc7a"><span class="color-swatch green"></span></label><label><input type="radio" name="underlineColor" value="#fbbf69"><span class="color-swatch orange"></span></label></div></div>
       </fieldset>
       <fieldset>
         <legend id="appearanceLegend">Sidebar appearance</legend>

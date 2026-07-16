@@ -97,10 +97,10 @@
   });
 
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
-  chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#7c3aed' }).then(applyHighlightStyle);
+  chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#ef4444' }).then(applyHighlightStyle);
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'sync' && (changes.highlightStyle || changes.underlineColor)) {
-      chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#7c3aed' }).then(applyHighlightStyle);
+      chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#ef4444' }).then(applyHighlightStyle);
     }
   });
   chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' })

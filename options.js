@@ -5,7 +5,6 @@ const includeSource = document.querySelector('#includeSource');
 const status = document.querySelector('#status');
 const language = document.querySelector('#language');
 const highlightStyles = document.querySelectorAll('input[name="highlightStyle"]');
-const underlineColor = document.querySelector('#underlineColor');
 const underlineColorField = document.querySelector('#underlineColorField');
 
 const copy = {
@@ -48,12 +47,18 @@ function toggleUnderlineColor() {
   underlineColorField.hidden = document.querySelector('input[name="highlightStyle"]:checked').value !== 'underline';
 }
 
-chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, highlightStyle: 'background', underlineColor: '#7c3aed', panelTheme: 'auto', language: 'en' }).then((settings) => {
+function selectUnderlineColor(color) {
+  const option = document.querySelector(`input[name="underlineColor"][value="${color}"]`)
+    ?? document.querySelector('input[name="underlineColor"][value="#ef4444"]');
+  option.checked = true;
+}
+
+chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, highlightStyle: 'background', underlineColor: '#ef4444', panelTheme: 'auto', language: 'en' }).then((settings) => {
   document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
   customFile.value = settings.customFile;
   includeSource.checked = settings.includeSource;
   document.querySelector(`input[name="highlightStyle"][value="${settings.highlightStyle}"]`).checked = true;
-  underlineColor.value = settings.underlineColor;
+  selectUnderlineColor(settings.underlineColor);
   language.value = settings.language;
   document.querySelector(`input[name="panelTheme"][value="${settings.panelTheme}"]`).checked = true;
   toggleCustomFile();
@@ -69,12 +74,13 @@ document.querySelector('#save').addEventListener('click', async () => {
   const saveMode = document.querySelector('input[name="saveMode"]:checked').value;
   const panelTheme = document.querySelector('input[name="panelTheme"]:checked').value;
   const highlightStyle = document.querySelector('input[name="highlightStyle"]:checked').value;
+  const underlineColor = document.querySelector('input[name="underlineColor"]:checked').value;
   const text = copy[language.value];
   if (saveMode === 'custom' && !customFile.value.trim()) {
     status.textContent = text.missingPath;
     return;
   }
-  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, highlightStyle, underlineColor: underlineColor.value, panelTheme, language: language.value });
+  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, highlightStyle, underlineColor, panelTheme, language: language.value });
   status.textContent = text.saved;
   setTimeout(() => { status.textContent = ''; }, 1500);
 });
