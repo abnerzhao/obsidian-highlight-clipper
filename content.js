@@ -4,7 +4,6 @@
   let highlights = [];
   let panel;
   let selectionMode = false;
-  let panelPinned = false;
   let panelTheme = 'sand';
   const rangesById = new Map();
   const cssHighlight = new Highlight();
@@ -31,11 +30,10 @@
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
-        <div class="oh-header-actions"><button class="oh-pin oh-icon-button" type="button" title="固定侧边栏" aria-label="固定侧边栏"><span class="oh-pin-glyph" aria-hidden="true"></span></button><button class="oh-exit oh-icon-button" type="button" title="退出侧边栏" aria-label="退出侧边栏">×</button></div>
+        <div class="oh-header-actions"><button class="oh-exit oh-icon-button" type="button" title="退出侧边栏" aria-label="退出侧边栏">×</button></div>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
-    panel.querySelector('.oh-pin').addEventListener('click', togglePanelPin);
     panel.querySelector('.oh-exit').addEventListener('click', exitPanel);
     panel.querySelector('.oh-save').addEventListener('click', saveToObsidian);
     panel.querySelector('.oh-copy').addEventListener('click', copyMarkdown);
@@ -49,16 +47,8 @@
     document.documentElement.classList.toggle('oh-panel-open', visible);
   }
 
-  async function togglePanelPin() {
-    panelPinned = !panelPinned;
-    await chrome.storage.local.set({ panelPinned });
-    renderPanel();
-  }
-
-  async function exitPanel() {
+  function exitPanel() {
     selectionMode = false;
-    panelPinned = false;
-    await chrome.storage.local.set({ panelPinned });
     setPanelVisible(false);
     renderPanel();
   }
@@ -74,10 +64,6 @@
     const mode = panel.querySelector('.oh-mode');
     mode.classList.toggle('active', selectionMode);
     mode.setAttribute('aria-pressed', String(selectionMode));
-    const pin = panel.querySelector('.oh-pin');
-    pin.classList.toggle('active', panelPinned);
-    pin.setAttribute('aria-pressed', String(panelPinned));
-    pin.setAttribute('title', panelPinned ? '取消固定侧边栏' : '固定侧边栏');
     panel.querySelectorAll('.oh-save, .oh-copy, .oh-clear').forEach((button) => { button.disabled = highlights.length === 0; });
     list.innerHTML = highlights.length
       ? highlights.map((item, index) => `<li class="oh-item"><span class="oh-item-text">${escapeHtml(item.text)}</span><button class="oh-delete" type="button" data-index="${index}" aria-label="删除">×</button></li>`).join('')
@@ -198,11 +184,6 @@
 
   createPanel();
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
-  chrome.storage.local.get({ panelPinned: false }).then((settings) => {
-    panelPinned = settings.panelPinned;
-    renderPanel();
-    if (panelPinned) setPanelVisible(true);
-  });
   chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => {
     panelTheme = settings.panelTheme;
     applyPanelTheme();
