@@ -18,6 +18,45 @@
   async function loadHighlights() {
     const data = await chrome.storage.local.get(STORAGE_KEY);
     highlights = data[STORAGE_KEY]?.[pageKey] ?? [];
+    restoreHighlightRanges();
+  }
+
+  function restoreHighlightRanges() {
+    rangesById.clear();
+    cssHighlight.clear();
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        return /^(SCRIPT|STYLE|NOSCRIPT)$/i.test(node.parentElement?.tagName ?? '')
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    const chunks = [];
+    let source = '';
+    let node;
+    while ((node = walker.nextNode())) {
+      const start = source.length;
+      source += node.nodeValue;
+      chunks.push({ node, start, end: source.length });
+    }
+    const locate = (position, isEnd) => chunks.find((chunk) => isEnd
+      ? position >= chunk.start && position <= chunk.end
+      : position >= chunk.start && position < chunk.end);
+    let searchFrom = 0;
+    for (const item of highlights) {
+      const startAt = source.indexOf(item.text, searchFrom);
+      if (startAt < 0) continue;
+      const endAt = startAt + item.text.length;
+      const start = locate(startAt, false);
+      const end = locate(endAt, true);
+      if (!start || !end) continue;
+      const range = new Range();
+      range.setStart(start.node, startAt - start.start);
+      range.setEnd(end.node, endAt - end.start);
+      cssHighlight.add(range);
+      rangesById.set(item.id, range);
+      searchFrom = endAt;
+    }
   }
 
   async function saveHighlights() {
