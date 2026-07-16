@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800">
+  <rect width="1280" height="800" fill="#fcf5ec"/>
+  <g fill="#151515" font-family="Arial, Helvetica, sans-serif" text-anchor="middle">
+    <text x="640" y="118" font-size="58" font-weight="700">Everything you need to</text>
+    <text x="640" y="185" font-size="58" font-weight="700">clip with confidence.</text>
+  </g>
+  <g fill="#fff0df">
+    <rect x="58" y="284" width="276" height="276" rx="22"/>
+    <rect x="354" y="284" width="276" height="276" rx="22"/>
+    <rect x="650" y="284" width="276" height="276" rx="22"/>
+    <rect x="946" y="284" width="276" height="276" rx="22"/>
+  </g>
+  <g fill="none" stroke="#7655df" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="145" y="337" width="78" height="58" rx="12" stroke-dasharray="8 14"/>
+    <path d="M172 363l47 20-22 10-10 22z" fill="#7655df" stroke="none"/>
+    <path d="M463 331l-33 64h39l-13 50 48-73h-39z"/>
+    <path d="M750 334h62l30 30v78h-92z"/>
+    <path d="M812 334v31h30M772 386h46M772 412h33"/>
+    <path d="M1051 376c31-39 83-39 114 0-31 39-83 39-114 0z"/>
+    <circle cx="1108" cy="376" r="16"/>
+    <path d="M1041 322l132 108"/>
+  </g>
+  <g fill="#151515" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-size="27" font-weight="500">
+    <text x="196" y="470">Highlight</text><text x="196" y="505">what matters</text>
+    <text x="492" y="470">Collect in the</text><text x="492" y="505">side panel</text>
+    <text x="788" y="470">Save straight</text><text x="788" y="505">to Obsidian</text>
+    <text x="1084" y="470">Keep source</text><text x="1084" y="505">links with clips</text>
+  </g>
+  <g transform="translate(498 665)">
+    <path d="M0 22 15 0l11 15 18-5 2 19 17 10-11 16 7 18-19 3-8 18-17-10-17 10-8-18-19-3 7-18-11-16 17-10 2-19 18 5z" fill="#7655df"/>
+    <text x="52" y="54" fill="#151515" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700">Obsidian Highlight Clipper</text>
+  </g>
+</svg>
