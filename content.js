@@ -4,7 +4,7 @@
   let highlights = [];
   let panel;
   let selectionMode = false;
-  let panelPinned = true;
+  let panelPinned = false;
   let panelTheme = 'sand';
   const rangesById = new Map();
   const cssHighlight = new Highlight();
@@ -31,7 +31,7 @@
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
-        <div class="oh-header-actions"><button class="oh-pin oh-icon-button" type="button" title="固定侧边栏" aria-label="固定侧边栏">📌</button><button class="oh-exit oh-icon-button" type="button" title="退出侧边栏" aria-label="退出侧边栏">×</button></div>
+        <div class="oh-header-actions"><button class="oh-pin oh-icon-button" type="button" title="固定侧边栏" aria-label="固定侧边栏"><span class="oh-pin-glyph" aria-hidden="true"></span></button><button class="oh-exit oh-icon-button" type="button" title="退出侧边栏" aria-label="退出侧边栏">×</button></div>
       </header>
       <ul class="oh-list"></ul>
       <div class="oh-footer"><button class="oh-button oh-save" type="button">保存到 Obsidian</button><button class="oh-button oh-copy" type="button">复制</button><button class="oh-button oh-clear" type="button">清除全部</button></div>`;
@@ -49,13 +49,16 @@
     document.documentElement.classList.toggle('oh-panel-open', visible);
   }
 
-  function togglePanelPin() {
+  async function togglePanelPin() {
     panelPinned = !panelPinned;
+    await chrome.storage.local.set({ panelPinned });
     renderPanel();
   }
 
-  function exitPanel() {
+  async function exitPanel() {
     selectionMode = false;
+    panelPinned = false;
+    await chrome.storage.local.set({ panelPinned });
     setPanelVisible(false);
     renderPanel();
   }
@@ -147,11 +150,7 @@
   function toggleSelectionMode() {
     selectionMode = !selectionMode;
     renderPanel();
-    if (!selectionMode) {
-      if (!panelPinned) setPanelVisible(false);
-      return;
-    }
-    setPanelVisible(true);
+    if (selectionMode) setPanelVisible(true);
   }
 
   function openObsidian(url) {
@@ -199,6 +198,11 @@
 
   createPanel();
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
+  chrome.storage.local.get({ panelPinned: false }).then((settings) => {
+    panelPinned = settings.panelPinned;
+    renderPanel();
+    if (panelPinned) setPanelVisible(true);
+  });
   chrome.storage.sync.get({ panelTheme: 'sand' }).then((settings) => {
     panelTheme = settings.panelTheme;
     applyPanelTheme();
