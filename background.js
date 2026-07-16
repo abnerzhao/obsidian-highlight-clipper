@@ -27,14 +27,33 @@ async function toggleSelectionMode(tabId) {
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
 
+async function disableSelectionMode(tabId) {
+  const data = await chrome.storage.session.get({ selectionModes: {} });
+  if (!data.selectionModes[tabId]) return { selectionMode: false };
+  await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: 'SET_SELECTION_MODE', selectionMode: false });
+  } catch {
+    // The page may already be navigating or the content script may not exist.
+  }
+  return { selectionMode: false };
+}
+
 chrome.action.onClicked.addListener((tab) => {
   if (!tab.id) return;
   chrome.sidePanel.open({ windowId: tab.windowId }).catch((error) => console.error('无法打开侧边栏：', error));
   setSelectionMode(tab.id, true);
 });
 
-chrome.action.onClicked.addListener((tab) => {
-  if (tab.id) setSelectionMode(tab.id, true);
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  const data = await chrome.storage.session.get({ selectionModes: {} });
+  await Promise.all(Object.entries(data.selectionModes)
+    .filter(([id, enabled]) => enabled && Number(id) !== tabId)
+    .map(([id]) => disableSelectionMode(Number(id))));
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'loading') disableSelectionMode(tabId);
 });
 
 chrome.commands.onCommand.addListener((command) => {
@@ -64,6 +83,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!tab?.id) return { selectionMode: false };
       return setSelectionMode(tab.id, true);
     }).then(sendResponse);
+    return true;
+  }
+  if (message.type === 'DISABLE_SELECTION_MODE_FOR_TAB' && message.tabId) {
+    disableSelectionMode(message.tabId).then(sendResponse);
     return true;
   }
   if (message.type === 'OPEN_OBSIDIAN' && message.tabId && message.url) {
