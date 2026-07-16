@@ -27,7 +27,7 @@
   function createPanel() {
     panel = document.createElement('aside');
     panel.id = 'oh-panel';
-    panel.hidden = true;
+    setPanelVisible(false);
     panel.innerHTML = `
       <header class="oh-header">
         <h2 class="oh-title">本页高亮剪藏 <span class="oh-count"></span><span class="oh-mode-label">选择模式</span><button class="oh-mode" type="button" title="点击切换高亮选择模式"><span>开</span><span>关</span></button></h2>
@@ -44,6 +44,11 @@
     document.documentElement.append(panel);
   }
 
+  function setPanelVisible(visible) {
+    panel.hidden = !visible;
+    document.documentElement.classList.toggle('oh-panel-open', visible);
+  }
+
   function togglePanelPin() {
     panelPinned = !panelPinned;
     renderPanel();
@@ -51,7 +56,7 @@
 
   function exitPanel() {
     selectionMode = false;
-    panel.hidden = true;
+    setPanelVisible(false);
     renderPanel();
   }
 
@@ -136,17 +141,17 @@
     sortHighlightsByPagePosition();
     await saveHighlights();
     renderPanel();
-    panel.hidden = false;
+    setPanelVisible(true);
   }
 
   function toggleSelectionMode() {
     selectionMode = !selectionMode;
     renderPanel();
     if (!selectionMode) {
-      if (!panelPinned) panel.hidden = true;
+      if (!panelPinned) setPanelVisible(false);
       return;
     }
-    panel.hidden = false;
+    setPanelVisible(true);
   }
 
   function openObsidian(url) {
@@ -183,7 +188,7 @@
   }
 
   chrome.runtime.onMessage.addListener((message) => {
-    if (message.type === 'TOGGLE_PANEL') panel.hidden = !panel.hidden;
+    if (message.type === 'TOGGLE_PANEL') setPanelVisible(panel.hidden);
     if (message.type === 'TOGGLE_SELECTION_MODE') toggleSelectionMode();
   });
 

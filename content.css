@@ -3,6 +3,15 @@
   color: inherit;
 }
 
+html.oh-panel-open {
+  padding-right: min(380px, 42vw) !important;
+  transition: padding-right 180ms ease;
+}
+
+html.oh-panel-open body {
+  box-sizing: border-box;
+}
+
 #oh-panel {
   --oh-surface: #ffffff;
   --oh-text: #243042;
