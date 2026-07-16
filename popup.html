@@ -1,26 +1,26 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
   <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlight Clipper</title><link rel="stylesheet" href="popup.css"></head>
   <body>
     <main>
       <h1>Obsidian Highlight Clipper</h1>
-      <p class="shortcut">macOS：Control + Shift + H<br><span>Windows/Linux：Alt + Shift + H</span></p>
+      <p class="shortcut">macOS: Control + Shift + H<br><span>Windows/Linux: Alt + Shift + H</span></p>
       <fieldset>
-        <legend>保存位置</legend>
-        <label><input type="radio" name="saveMode" value="daily">默认日志</label>
-        <label><input type="radio" name="saveMode" value="custom">自定义文件</label>
+        <legend>Save location</legend>
+        <label><input type="radio" name="saveMode" value="daily">Daily note</label>
+        <label><input type="radio" name="saveMode" value="custom">Custom file</label>
         <input id="customFile" placeholder="Inbox/Web Highlights.md">
       </fieldset>
       <fieldset>
-        <legend>侧边栏背景色</legend>
+        <legend>Sidebar appearance</legend>
         <div class="theme-options">
-          <label class="theme-choice"><input type="radio" name="panelTheme" value="sand"><span class="theme-swatch theme-sand"></span>米色</label>
-          <label class="theme-choice"><input type="radio" name="panelTheme" value="light"><span class="theme-swatch theme-light"></span>浅色</label>
-          <label class="theme-choice"><input type="radio" name="panelTheme" value="dusk"><span class="theme-swatch theme-dusk"></span>深色</label>
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="sand"><span class="theme-swatch theme-sand"></span>Sand</label>
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="light"><span class="theme-swatch theme-light"></span>Light</label>
+          <label class="theme-choice"><input type="radio" name="panelTheme" value="dusk"><span class="theme-swatch theme-dusk"></span>Dark</label>
         </div>
       </fieldset>
-      <label class="source"><input id="includeSource" type="checkbox">携带原文链接</label>
-      <div class="actions"><button id="save" class="primary" type="button">保存设置</button><button id="openOptions" type="button">更多设置</button></div>
+      <label class="source"><input id="includeSource" type="checkbox">Include source link</label>
+      <div class="actions"><button id="save" class="primary" type="button">Save settings</button><button id="openOptions" type="button">More settings</button></div>
       <p id="status" role="status"></p>
     </main>
     <script src="popup.js"></script>

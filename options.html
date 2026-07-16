@@ -1,25 +1,26 @@
 <!doctype html>
-<html lang="zh-CN">
-  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlight Clipper 设置</title><link rel="stylesheet" href="options.css"></head>
+<html lang="en">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Obsidian Highlight Clipper Settings</title><link rel="stylesheet" href="options.css"></head>
   <body>
     <main>
       <h1>Obsidian Highlight Clipper</h1>
-      <p>每次保存会把当前页面的全部剪藏追加到所选笔记。</p>
+      <p id="intro">Saving appends all highlights from the current page to the selected note.</p>
+      <label class="language"><span id="languageLabel">Language</span><select id="language"><option value="en">English</option><option value="zh-CN">中文</option></select></label>
       <fieldset>
-        <legend>保存位置</legend>
-        <label class="radio"><input type="radio" name="saveMode" value="daily">默认日志文件（Obsidian Daily notes）</label>
-        <label class="radio"><input type="radio" name="saveMode" value="custom">自定义文件</label>
-        <label id="customFileField">文件路径<input id="customFile" placeholder="例如：Inbox/Web Highlights.md"></label>
+        <legend id="saveLocationLegend">Save location</legend>
+        <label class="radio"><input type="radio" name="saveMode" value="daily"><span id="dailyLabel">Obsidian daily note</span></label>
+        <label class="radio"><input type="radio" name="saveMode" value="custom"><span id="customLabel">Custom file</span></label>
+        <label id="customFileField"><span id="filePathLabel">File path</span><input id="customFile" placeholder="e.g. Inbox/{{YYYY/MM/DD}} Highlights.md"><small id="tokensHint">Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}</small></label>
       </fieldset>
-      <label class="checkbox"><input id="includeSource" type="checkbox">携带原文链接</label>
+      <label class="checkbox"><input id="includeSource" type="checkbox"><span id="sourceLabel">Include source link</span></label>
       <fieldset>
-        <legend>侧边栏背景色</legend>
-        <label class="radio"><input type="radio" name="panelTheme" value="auto">跟随浏览器外观</label>
-        <label class="radio"><input type="radio" name="panelTheme" value="sand">米色</label>
-        <label class="radio"><input type="radio" name="panelTheme" value="light">浅色</label>
-        <label class="radio"><input type="radio" name="panelTheme" value="dusk">深色</label>
+        <legend id="appearanceLegend">Sidebar appearance</legend>
+        <label class="radio"><input type="radio" name="panelTheme" value="auto"><span id="autoThemeLabel">Follow browser</span></label>
+        <label class="radio"><input type="radio" name="panelTheme" value="sand"><span id="sandThemeLabel">Sand</span></label>
+        <label class="radio"><input type="radio" name="panelTheme" value="light"><span id="lightThemeLabel">Light</span></label>
+        <label class="radio"><input type="radio" name="panelTheme" value="dusk"><span id="darkThemeLabel">Dark</span></label>
       </fieldset>
-      <button id="save" type="button">保存设置</button><span id="status" role="status"></span>
+      <button id="save" type="button">Save settings</button><span id="status" role="status"></span>
     </main>
     <script src="options.js"></script>
   </body>

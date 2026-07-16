@@ -19,18 +19,18 @@ chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.m
 saveModes.forEach((input) => input.addEventListener('change', toggleCustomFile));
 panelThemes.forEach((input) => input.addEventListener('change', () => {
   chrome.storage.sync.set({ panelTheme: input.value });
-  status.textContent = '背景色已更新';
+  status.textContent = 'Appearance updated';
 }));
 
 document.querySelector('#save').addEventListener('click', async () => {
   const saveMode = document.querySelector('input[name="saveMode"]:checked').value;
   if (saveMode === 'custom' && !customFile.value.trim()) {
-    status.textContent = '请填写文件路径';
+    status.textContent = 'Enter a file path';
     return;
   }
   const panelTheme = document.querySelector('input[name="panelTheme"]:checked').value;
   await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, panelTheme });
-  status.textContent = '已保存';
+  status.textContent = 'Saved';
 });
 
 document.querySelector('#openOptions').addEventListener('click', () => chrome.runtime.openOptionsPage());
