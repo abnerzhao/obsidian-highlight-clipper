@@ -40,11 +40,6 @@ chrome.commands.onCommand.addListener(async (command) => {
   }
 });
 
-chrome.tabs.onActivated.addListener(({ windowId }) => {
-  if (!chrome.sidePanel.close) return;
-  chrome.sidePanel.close({ windowId }).catch(() => {});
-});
-
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type !== 'TOGGLE_SELECTION_MODE_FOR_TAB') return;
   toggleSelectionMode(message.tabId).then(sendResponse);
