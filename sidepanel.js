@@ -5,8 +5,8 @@ let language = 'en';
 let saveSettings = { saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
 const translations = {
-  en: { title: 'Page highlights', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No highlights yet', emptyBody: 'Turn on selection mode, then select text on the page.', source: 'Source', delete: 'Delete' },
-  'zh-CN': { title: '本页高亮剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有高亮内容', emptyBody: '开启选择模式后，选中文本即可剪藏。', source: '原文链接', delete: '删除' }
+  en: { title: 'Page highlights', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No highlights yet', emptyBody: 'Turn on selection mode, then select text on the page.', source: 'Source', delete: 'Delete' },
+  'zh-CN': { title: '本页高亮剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有高亮内容', emptyBody: '开启选择模式后，选中文本即可剪藏。', source: '原文链接', delete: '删除' }
 };
 
 const panel = document.querySelector('#panel');
@@ -117,6 +117,8 @@ save.addEventListener('click', async () => {
     ? `obsidian://daily?append=true&content=${encodeURIComponent(content)}`
     : `obsidian://new?file=${encodeURIComponent(resolveFilePath(saveSettings.customFile.trim()))}&append=true&content=${encodeURIComponent(content)}`;
   const result = await chrome.runtime.sendMessage({ type: 'OPEN_OBSIDIAN', tabId: activeTab.id, url });
+  save.textContent = result.ok ? translations[language].sent : translations[language].failed;
+  setTimeout(() => { save.textContent = translations[language].save; }, 1800);
   if (!result.ok) console.error('无法打开 Obsidian：', result.error);
 });
 document.querySelector('#settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
