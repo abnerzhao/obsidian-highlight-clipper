@@ -41,13 +41,13 @@ chrome.action.onClicked.addListener((tab) => {
   enableSelectionMode(tab.id);
 });
 
-chrome.commands.onCommand.addListener(async (command) => {
-  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (!tab?.id) return;
-  if (command === 'highlight-selection') {
-    openSidePanel(tab.windowId);
-    await toggleSelectionMode(tab.id);
-  }
+chrome.commands.onCommand.addListener((command) => {
+  if (command !== 'highlight-selection') return;
+  openSidePanel(chrome.windows.WINDOW_ID_CURRENT);
+  chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
+    if (tab?.id) return toggleSelectionMode(tab.id);
+    return undefined;
+  });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
