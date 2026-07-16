@@ -1,4 +1,4 @@
-chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error) => console.error('无法配置侧边栏：', error));
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error('无法配置侧边栏：', error));
 
 async function sendToContentScript(tabId, message) {
   try {
@@ -27,16 +27,11 @@ async function toggleSelectionMode(tabId) {
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
 
-async function enableSelectionModeForWindow(windowId) {
-  const [tab] = await chrome.tabs.query({ active: true, windowId });
-  if (tab?.id) await setSelectionMode(tab.id, true);
-}
-
-if (chrome.sidePanel.onOpened) {
-  chrome.sidePanel.onOpened.addListener(({ windowId }) => {
-    enableSelectionModeForWindow(windowId);
-  });
-}
+chrome.action.onClicked.addListener((tab) => {
+  if (!tab.id) return;
+  chrome.sidePanel.open({ windowId: tab.windowId }).catch((error) => console.error('无法打开侧边栏：', error));
+  setSelectionMode(tab.id, true);
+});
 
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id) setSelectionMode(tab.id, true);
