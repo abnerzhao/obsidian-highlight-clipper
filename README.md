@@ -4,6 +4,20 @@
 
 高亮网页中的关键片段，沉淀到 Obsidian。
 
+## 展示
+
+### 网页高亮与收集
+
+![网页高亮与侧边栏剪藏](store-assets/highlight-and-collect.png)
+
+### 自定义剪藏方式与外观
+
+![自定义保存位置和高亮外观](store-assets/customize-settings.png)
+
+### 保存到 Obsidian
+
+![保存剪藏到 Obsidian](store-assets/save-to-obsidian.png)
+
 ## 功能
 
 - 使用 Chrome 原生侧边栏，不遮挡或改动网页布局。

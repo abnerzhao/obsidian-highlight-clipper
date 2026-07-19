@@ -4,6 +4,20 @@
 
 Highlight what matters on the web, then save it to Obsidian.
 
+## Showcase
+
+### Highlight and collect
+
+![Highlight passages and collect them in the side panel](store-assets/highlight-and-collect.png)
+
+### Make it yours
+
+![Customize save location and highlight appearance](store-assets/customize-settings.png)
+
+### Save to Obsidian
+
+![Save collected highlights to Obsidian](store-assets/save-to-obsidian.png)
+
 ## Features
 
 - Uses Chrome's native Side Panel, so it never overlays or changes the webpage layout.
