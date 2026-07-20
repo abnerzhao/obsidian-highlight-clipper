@@ -10,6 +10,7 @@
         <legend id="saveLocationLegend">Save location</legend>
         <label class="radio"><input type="radio" name="saveMode" value="daily"><span id="dailyLabel">Obsidian daily note</span></label>
         <label class="radio"><input type="radio" name="saveMode" value="custom"><span id="customLabel">Custom file</span></label>
+        <label><span id="vaultNameLabel">Vault name</span><input id="vaultName" placeholder="e.g. My Vault"><small id="vaultNameHint">Required for custom file paths. Find it in Obsidian's vault switcher.</small></label>
         <label id="customFileField"><span id="filePathLabel">File path</span><input id="customFile" placeholder="e.g. Inbox/{{YYYY/MM/DD}} Highlights.md"><small id="tokensHint">Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}</small></label>
         <label class="checkbox"><input id="includeSource" type="checkbox"><span id="sourceLabel">Include source link</span></label>
       </fieldset>

@@ -1,6 +1,7 @@
 const saveModes = document.querySelectorAll('input[name="saveMode"]');
 const customFile = document.querySelector('#customFile');
 const customFileField = document.querySelector('#customFileField');
+const vaultName = document.querySelector('#vaultName');
 const includeSource = document.querySelector('#includeSource');
 const status = document.querySelector('#status');
 const language = document.querySelector('#language');
@@ -9,10 +10,10 @@ const underlineColorField = document.querySelector('#underlineColorField');
 
 const copy = {
   en: {
-    intro: 'Saving appends all highlights from the current page to the selected note.', language: 'Language', saveLocation: 'Save location', daily: 'Obsidian daily note', custom: 'Custom file', filePath: 'File path', tokens: 'Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}', source: 'Include source link', highlight: 'Highlight appearance', background: 'Background', underline: 'Underline', underlineColor: 'Underline color', appearance: 'Sidebar appearance', auto: 'Follow browser', sand: 'Sand', light: 'Light', dark: 'Dark', save: 'Save settings', missingPath: 'Enter a file path', saved: 'Saved'
+    intro: 'Saving appends all highlights from the current page to the selected note.', language: 'Language', saveLocation: 'Save location', daily: 'Obsidian daily note', custom: 'Custom file', vaultName: 'Vault name', vaultHint: "Required for custom file paths. Find it in Obsidian's vault switcher.", filePath: 'File path', tokens: 'Supported: {{YYYY}}, {{MM}}, {{DD}}, {{YYYY-MM-DD}}, {{YYYY/MM/DD}}', source: 'Include source link', highlight: 'Highlight appearance', background: 'Background', underline: 'Underline', underlineColor: 'Underline color', appearance: 'Sidebar appearance', auto: 'Follow browser', sand: 'Sand', light: 'Light', dark: 'Dark', save: 'Save settings', missingPath: 'Enter a file path', missingVault: 'Enter a vault name for custom files', saved: 'Saved'
   },
   'zh-CN': {
-    intro: '每次保存会把当前页面的全部剪藏追加到所选笔记。', language: '语言', saveLocation: '保存位置', daily: 'Obsidian 每日笔记', custom: '自定义文件', filePath: '文件路径', tokens: '支持：{{YYYY}}、{{MM}}、{{DD}}、{{YYYY-MM-DD}}、{{YYYY/MM/DD}}', source: '携带原文链接', highlight: '高亮样式', background: '背景高亮', underline: '下划线', underlineColor: '下划线颜色', appearance: '侧边栏外观', auto: '跟随浏览器', sand: '米色', light: '浅色', dark: '深色', save: '保存设置', missingPath: '请填写文件路径', saved: '已保存'
+    intro: '每次保存会把当前页面的全部剪藏追加到所选笔记。', language: '语言', saveLocation: '保存位置', daily: 'Obsidian 每日笔记', custom: '自定义文件', vaultName: 'Vault 名称', vaultHint: '自定义文件路径必须填写。可在 Obsidian 的库切换器中查看。', filePath: '文件路径', tokens: '支持：{{YYYY}}、{{MM}}、{{DD}}、{{YYYY-MM-DD}}、{{YYYY/MM/DD}}', source: '携带原文链接', highlight: '高亮样式', background: '背景高亮', underline: '下划线', underlineColor: '下划线颜色', appearance: '侧边栏外观', auto: '跟随浏览器', sand: '米色', light: '浅色', dark: '深色', save: '保存设置', missingPath: '请填写文件路径', missingVault: '自定义文件请填写 Vault 名称', saved: '已保存'
   }
 };
 
@@ -24,6 +25,8 @@ function applyLanguage(value) {
   document.querySelector('#saveLocationLegend').textContent = text.saveLocation;
   document.querySelector('#dailyLabel').textContent = text.daily;
   document.querySelector('#customLabel').textContent = text.custom;
+  document.querySelector('#vaultNameLabel').textContent = text.vaultName;
+  document.querySelector('#vaultNameHint').textContent = text.vaultHint;
   document.querySelector('#filePathLabel').textContent = text.filePath;
   document.querySelector('#tokensHint').textContent = text.tokens;
   document.querySelector('#sourceLabel').textContent = text.source;
@@ -53,9 +56,10 @@ function selectUnderlineColor(color) {
   option.checked = true;
 }
 
-chrome.storage.sync.get({ saveMode: 'daily', customFile: 'Inbox/Web Highlights.md', includeSource: true, highlightStyle: 'background', underlineColor: '#ef4444', panelTheme: 'auto', language: 'en' }).then((settings) => {
+chrome.storage.sync.get({ saveMode: 'daily', vaultName: '', customFile: 'Inbox/Web Highlights.md', includeSource: true, highlightStyle: 'background', underlineColor: '#ef4444', panelTheme: 'auto', language: 'en' }).then((settings) => {
   document.querySelector(`input[name="saveMode"][value="${settings.saveMode}"]`).checked = true;
   customFile.value = settings.customFile;
+  vaultName.value = settings.vaultName;
   includeSource.checked = settings.includeSource;
   document.querySelector(`input[name="highlightStyle"][value="${settings.highlightStyle}"]`).checked = true;
   selectUnderlineColor(settings.underlineColor);
@@ -80,7 +84,11 @@ document.querySelector('#save').addEventListener('click', async () => {
     status.textContent = text.missingPath;
     return;
   }
-  await chrome.storage.sync.set({ saveMode, customFile: customFile.value.trim(), includeSource: includeSource.checked, highlightStyle, underlineColor, panelTheme, language: language.value });
+  if (saveMode === 'custom' && !vaultName.value.trim()) {
+    status.textContent = text.missingVault;
+    return;
+  }
+  await chrome.storage.sync.set({ saveMode, vaultName: vaultName.value.trim(), customFile: customFile.value.trim(), includeSource: includeSource.checked, highlightStyle, underlineColor, panelTheme, language: language.value });
   status.textContent = text.saved;
   setTimeout(() => { status.textContent = ''; }, 1500);
 });
