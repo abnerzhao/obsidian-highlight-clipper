@@ -51,7 +51,7 @@
 
 示例：`Inbox/{{YYYY/MM/DD}} Highlights.md`。
 
-自定义文件还需要在设置中填写 Obsidian 的 Vault 名称，以确保剪藏写入指定知识库。
+自定义文件还需要在设置中填写 Obsidian 的 Vault 名称，或 Vault 的本机绝对路径（例如 `/Users/me/Documents/My Vault`），以确保剪藏写入指定知识库。
 
 ## 注意事项
 

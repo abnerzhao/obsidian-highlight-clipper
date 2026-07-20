@@ -51,7 +51,7 @@ Custom file paths may use the following local-date variables:
 
 For example: `Inbox/{{YYYY/MM/DD}} Highlights.md`.
 
-For custom files, also set the Obsidian vault name in Settings so clippings are written to the intended vault.
+For custom files, also set the Obsidian vault name or its absolute local path (for example, `/Users/me/Documents/My Vault`) in Settings so clippings are written to the intended vault.
 
 ## Notes
 

@@ -13,6 +13,18 @@ const ObsidianUri = (() => {
     return Object.entries(tokens).reduce((path, [token, value]) => path.replaceAll(token, value), template.trim());
   }
 
+  function isAbsolutePath(path) {
+    return path.startsWith('/') || /^[A-Za-z]:[\\/]/.test(path);
+  }
+
+  function vaultNameFromPath(path) {
+    return path.split(/[\\/]+/).filter(Boolean).at(-1);
+  }
+
+  function joinPath(root, file) {
+    return `${root.replace(/[\\/]+$/, '')}/${file.replace(/^[\\/]+/, '')}`;
+  }
+
   function build({ saveMode, customFile, vaultName, content, date }) {
     const vault = vaultName.trim();
     const query = (params) => Object.entries(params)
@@ -20,10 +32,14 @@ const ObsidianUri = (() => {
       .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
       .join('&');
     if (saveMode === 'daily') {
-      return `obsidian://daily?${query({ vault, append: 'true', content })}`;
+      return `obsidian://daily?${query({ vault: isAbsolutePath(vault) ? vaultNameFromPath(vault) : vault, append: 'true', content })}`;
     }
     if (!vault) throw new Error('VAULT_NAME_REQUIRED');
-    return `obsidian://new?${query({ vault, file: resolveFilePath(customFile, date), append: 'true', content })}`;
+    const file = resolveFilePath(customFile, date);
+    if (isAbsolutePath(vault)) {
+      return `obsidian://new?${query({ path: joinPath(vault, file), append: 'true', content })}`;
+    }
+    return `obsidian://new?${query({ vault, file, append: 'true', content })}`;
   }
 
   return { build, resolveFilePath };

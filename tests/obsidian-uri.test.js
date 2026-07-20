@@ -11,6 +11,10 @@ assert.equal(
   build({ saveMode: 'daily', vaultName: 'My Vault', content: '> A clip', date }),
   'obsidian://daily?vault=My%20Vault&append=true&content=%3E%20A%20clip'
 );
+assert.equal(
+  build({ saveMode: 'custom', vaultName: '/Users/abnerzhao/Documents/Notes', customFile: 'Weekly/2026/2026-W30', content: '> A clip', date }),
+  'obsidian://new?path=%2FUsers%2Fabnerzhao%2FDocuments%2FNotes%2FWeekly%2F2026%2F2026-W30&append=true&content=%3E%20A%20clip'
+);
 assert.throws(() => build({ saveMode: 'custom', vaultName: '', customFile: 'Inbox/Clips.md', content: '> A clip', date }), /VAULT_NAME_REQUIRED/);
 
 console.log('obsidian-uri tests passed');
