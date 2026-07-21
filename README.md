@@ -28,6 +28,12 @@
 
 ## 安装
 
+### Chrome 应用商店
+
+访问 [Obsidian Highlight Clipper](https://chromewebstore.google.com/detail/obsidian-highlight-clippe/lomkeaeodebhbldkkeoajjnpkofdlheg) 并点击「添加至 Chrome」。
+
+### 本地开发者模式
+
 1. 打开 `chrome://extensions`。
 2. 开启「开发者模式」，选择「加载已解压的扩展程序」。
 3. 选择本项目目录。

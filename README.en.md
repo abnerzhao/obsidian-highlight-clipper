@@ -28,6 +28,12 @@ Highlight what matters on the web, then save it to Obsidian.
 
 ## Install
 
+### Chrome Web Store
+
+Visit [Obsidian Highlight Clipper](https://chromewebstore.google.com/detail/obsidian-highlight-clippe/lomkeaeodebhbldkkeoajjnpkofdlheg) and select **Add to Chrome**.
+
+### Local developer mode
+
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**, then choose **Load unpacked**.
 3. Select this project directory.
