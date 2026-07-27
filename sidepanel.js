@@ -5,8 +5,8 @@ let language = 'en';
 let saveSettings = { saveMode: 'daily', vaultName: '', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
 const translations = {
-  en: { title: 'Page highlights', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No highlights yet', emptyBody: 'Turn on selection mode, then select text on the page.', source: 'Source', delete: 'Delete' },
-  'zh-CN': { title: '本页高亮剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有高亮内容', emptyBody: '开启选择模式后，选中文本即可剪藏。', source: '原文链接', delete: '删除' }
+  en: { title: 'Clip queue', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No clips yet', emptyBody: 'Turn on selection mode, then select text on any page.', source: 'Source', delete: 'Delete' },
+  'zh-CN': { title: '暂存剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有暂存内容', emptyBody: '开启选择模式后，可在任意页面选中文本剪藏。', source: '原文链接', delete: '删除' }
 };
 
 const panel = document.querySelector('#panel');
@@ -19,15 +19,9 @@ const clear = document.querySelector('#clear');
 
 async function refresh() {
   [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-  if (!activeTab?.url) {
-    highlights = [];
-    selectionMode = false;
-    return render();
-  }
-  const data = await chrome.storage.local.get('highlightsByPage');
-  highlights = data.highlightsByPage?.[activeTab.url] ?? [];
-  const modes = await chrome.storage.session.get({ selectionModes: {} });
-  selectionMode = Boolean(modes.selectionModes[activeTab.id]);
+  const data = await chrome.storage.session.get({ clipQueue: [], selectionModes: {} });
+  highlights = data.clipQueue;
+  selectionMode = Boolean(activeTab?.id && data.selectionModes[activeTab.id]);
   render();
 }
 
@@ -38,9 +32,12 @@ function render() {
   mode.setAttribute('aria-pressed', String(selectionMode));
   [save, copy, clear].forEach((button) => { button.disabled = highlights.length === 0; });
   list.innerHTML = highlights.length
-    ? highlights.map((item) => `<li class="item"><span>${escapeHtml(item.text)}</span><button class="delete" type="button" data-id="${item.id}" aria-label="${text.delete}">×</button></li>`).join('')
+    ? highlights.map((item) => `<li class="item"><div class="clip-content"><span>${escapeHtml(item.text)}</span><small title="${escapeHtml(item.pageTitle || item.pageUrl)}">${escapeHtml(item.pageTitle || item.pageUrl)}</small></div><button class="delete" type="button" data-id="${item.id}" aria-label="${text.delete}">×</button></li>`).join('')
     : `<li class="empty"><strong>${text.emptyTitle}</strong><span>${text.emptyBody}</span><kbd>macOS: Control + Shift + H</kbd><kbd>Windows/Linux: Alt + Shift + H</kbd></li>`;
-  list.querySelectorAll('.delete').forEach((button) => button.addEventListener('click', () => sendToPage({ type: 'DELETE_HIGHLIGHT', id: button.dataset.id })));
+  list.querySelectorAll('.delete').forEach((button) => button.addEventListener('click', async () => {
+    await chrome.runtime.sendMessage({ type: 'DELETE_CLIP_QUEUE_ITEM', id: button.dataset.id });
+    await refresh();
+  }));
 }
 
 function applyLanguage(value) {
@@ -65,12 +62,6 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-async function sendToPage(message) {
-  if (!activeTab?.id) return;
-  await chrome.tabs.sendMessage(activeTab.id, message);
-  await refresh();
-}
-
 async function toggleMode() {
   if (!activeTab?.id) return;
   const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB' });
@@ -79,8 +70,14 @@ async function toggleMode() {
 }
 
 function markdown() {
-  const source = saveSettings.includeSource ? `\n>\n> ${translations[language].source}: [${activeTab.title}](${activeTab.url})` : '';
-  return `---\n\n${highlights.map((item) => `> ${item.text}`).join('\n>\n')}${source}\n`;
+  const text = translations[language];
+  const clips = highlights.map((item) => {
+    const source = saveSettings.includeSource
+      ? `\n>\n> ${text.source}: [${item.pageTitle || item.pageUrl}](${item.pageUrl})`
+      : '';
+    return `> ${item.text}${source}`;
+  });
+  return `---\n\n${clips.join('\n\n')}\n`;
 }
 
 function applySettings(settings) {
@@ -90,7 +87,10 @@ function applySettings(settings) {
 }
 
 mode.addEventListener('click', toggleMode);
-clear.addEventListener('click', () => sendToPage({ type: 'CLEAR_HIGHLIGHTS' }));
+clear.addEventListener('click', async () => {
+  await chrome.runtime.sendMessage({ type: 'CLEAR_CLIP_QUEUE' });
+  await refresh();
+});
 copy.addEventListener('click', async () => {
   await navigator.clipboard.writeText(markdown());
   copy.textContent = translations[language].copied;
@@ -116,7 +116,7 @@ window.addEventListener('pagehide', () => {
   if (activeTab?.id) chrome.runtime.sendMessage({ type: 'DISABLE_SELECTION_MODE_FOR_TAB', tabId: activeTab.id }).catch(() => {});
 });
 chrome.storage.onChanged.addListener((_changes, area) => {
-  if (area === 'local' || area === 'session') refresh();
+  if (area === 'session') refresh();
   if (area === 'sync') chrome.storage.sync.get(saveSettings).then(applySettings);
 });
 chrome.tabs.onActivated.addListener(refresh);

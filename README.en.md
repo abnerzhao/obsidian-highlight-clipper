@@ -21,8 +21,8 @@ Highlight what matters on the web, then save it to Obsidian.
 ## Features
 
 - Uses Chrome's native Side Panel, so it never overlays or changes the webpage layout.
-- Supports multiple highlights per page, ordered by their position in the article.
-- Saves all clippings as Markdown blockquotes to an Obsidian daily note or custom file.
+- Keeps a temporary clip queue across tabs and page refreshes; it clears automatically when Chrome fully exits.
+- Saves all queued clippings as Markdown blockquotes to an Obsidian daily note or custom file, with each source link preserved.
 - Supports English and Simplified Chinese UI.
 - Supports sidebar themes: follow browser, sand, light, and dark.
 
@@ -43,7 +43,7 @@ Visit [Obsidian Highlight Clipper](https://chromewebstore.google.com/detail/obsi
 
 - Press `Control + Shift + H` on macOS, or `Alt + Shift + H` on Windows/Linux, to toggle selection mode. When enabled, selecting text creates a highlight.
 - Use the gear icon in the sidebar to configure the save location, source link, appearance, and language.
-- The sidebar keeps highlights scoped to the active page. Selection mode is scoped to each tab.
+- The sidebar collects clips from every tab. Selection mode is scoped to each tab.
 
 ### Custom file date variables
 
@@ -61,6 +61,6 @@ For custom files, also set the Obsidian vault name or its absolute local path (f
 
 ## Notes
 
-- Highlights save text only; they are not restored to their original page positions after a refresh.
+- The temporary clip queue lasts for the current Chrome session and clears automatically when Chrome fully exits.
 - Daily notes use `obsidian://daily`; custom files use `obsidian://new`. Obsidian must be installed and registered to handle `obsidian://` links.
 - Chrome may require confirmation the first time it opens Obsidian. The **Copy** button is available as a fallback.

@@ -14,7 +14,7 @@ The extension handles the following data only to provide its clipping functional
 
 ## How data is used and stored
 
-Highlights and page URLs are stored locally in Chrome extension storage so they can be displayed in the side panel and saved when you choose to do so. Extension preferences may be stored using Chrome Sync when sync is enabled in your browser.
+Highlights and page URLs are stored in Chrome session storage so they can be displayed in the side panel and saved when you choose to do so. This temporary clip queue is cleared when Chrome fully exits. Extension preferences may be stored using Chrome Sync when sync is enabled in your browser.
 
 When you select **Save to Obsidian**, the extension sends the selected highlights and, if enabled, the source link to the Obsidian application installed on your device through an `obsidian://` link. This action occurs only after you explicitly click the save button.
 

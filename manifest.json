@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Obsidian Highlight Clipper",
   "description": "Highlight what matters on the web, then save it to Obsidian.",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "minimum_chrome_version": "116",
   "permissions": ["storage", "activeTab", "scripting", "sidePanel"],
   "action": {
@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["http://*/*", "https://*/*"],
-      "js": ["content.js"],
+      "js": ["clip-queue.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
     }

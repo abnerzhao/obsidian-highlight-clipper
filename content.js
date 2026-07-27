@@ -1,5 +1,6 @@
 (() => {
-  const STORAGE_KEY = 'highlightsByPage';
+  const PAGE_STORAGE_KEY = 'highlightsByPage';
+  const QUEUE_STORAGE_KEY = 'clipQueue';
   const HIGHLIGHT_NAME = 'obsidian-highlighter';
   let highlights = [];
   let selectionMode = false;
@@ -15,21 +16,9 @@
     root.setProperty('--oh-highlight-underline-color', settings.underlineColor);
   }
 
-  function wasPageReloaded() {
-    const navigation = performance.getEntriesByType('navigation')[0];
-    return navigation?.type === 'reload';
-  }
-
   async function loadHighlights() {
-    const data = await chrome.storage.local.get(STORAGE_KEY);
-    if (wasPageReloaded()) {
-      const highlightsByPage = { ...(data[STORAGE_KEY] ?? {}) };
-      delete highlightsByPage[pageKey];
-      await chrome.storage.local.set({ [STORAGE_KEY]: highlightsByPage });
-      highlights = [];
-      return;
-    }
-    highlights = data[STORAGE_KEY]?.[pageKey] ?? [];
+    const data = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {} });
+    highlights = data[PAGE_STORAGE_KEY][pageKey] ?? [];
     restoreHighlightRanges();
   }
 
@@ -72,8 +61,13 @@
   }
 
   async function saveHighlights() {
-    const data = await chrome.storage.local.get(STORAGE_KEY);
-    await chrome.storage.local.set({ [STORAGE_KEY]: { ...(data[STORAGE_KEY] ?? {}), [pageKey]: highlights } });
+    const data = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
+    const highlightsByPage = { ...data[PAGE_STORAGE_KEY], [pageKey]: highlights };
+    if (!highlights.length) delete highlightsByPage[pageKey];
+    await chrome.storage.session.set({
+      [PAGE_STORAGE_KEY]: highlightsByPage,
+      [QUEUE_STORAGE_KEY]: ClipQueue.syncPage(data[QUEUE_STORAGE_KEY], highlights, pageKey, document.title)
+    });
   }
 
   function normalizedText(text) {
@@ -153,6 +147,7 @@
     if (area === 'sync' && (changes.highlightStyle || changes.underlineColor)) {
       chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#ef4444' }).then(applyHighlightStyle);
     }
+    if (area === 'session' && changes[PAGE_STORAGE_KEY]) loadHighlights();
   });
   chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' })
     .then((state) => { selectionMode = Boolean(state.selectionMode); })

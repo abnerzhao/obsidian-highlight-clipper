@@ -1,4 +1,29 @@
+import './clip-queue.js';
+
+const PAGE_STORAGE_KEY = 'highlightsByPage';
+const QUEUE_STORAGE_KEY = 'clipQueue';
+
+async function migrateLegacyHighlights() {
+  const session = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
+  if (Object.keys(session[PAGE_STORAGE_KEY]).length || session[QUEUE_STORAGE_KEY].length) return;
+  const local = await chrome.storage.local.get({ [PAGE_STORAGE_KEY]: {} });
+  if (!Object.keys(local[PAGE_STORAGE_KEY]).length) return;
+  await chrome.storage.session.set({
+    [PAGE_STORAGE_KEY]: local[PAGE_STORAGE_KEY],
+    [QUEUE_STORAGE_KEY]: ClipQueue.fromLegacy(local[PAGE_STORAGE_KEY])
+  });
+  await chrome.storage.local.remove(PAGE_STORAGE_KEY);
+}
+
+async function deleteClip(id) {
+  const data = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
+  const next = ClipQueue.remove(data[QUEUE_STORAGE_KEY], data[PAGE_STORAGE_KEY], id);
+  await chrome.storage.session.set({ [PAGE_STORAGE_KEY]: next.highlightsByPage, [QUEUE_STORAGE_KEY]: next.queue });
+  return { ok: true };
+}
+
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error('无法配置侧边栏：', error));
+migrateLegacyHighlights().catch((error) => console.error('无法迁移暂存剪藏：', error));
 
 async function sendToContentScript(tabId, message) {
   try {
@@ -6,7 +31,7 @@ async function sendToContentScript(tabId, message) {
   } catch (error) {
     if (!error.message?.includes('Receiving end does not exist')) throw error;
     await chrome.scripting.insertCSS({ target: { tabId }, files: ['content.css'] });
-    await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
+    await chrome.scripting.executeScript({ target: { tabId }, files: ['clip-queue.js', 'content.js'] });
     return chrome.tabs.sendMessage(tabId, message);
   }
 }
@@ -94,6 +119,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       () => sendResponse({ ok: true }),
       (error) => sendResponse({ ok: false, error: error.message })
     );
+    return true;
+  }
+  if (message.type === 'DELETE_CLIP_QUEUE_ITEM' && message.id) {
+    deleteClip(message.id).then(sendResponse);
+    return true;
+  }
+  if (message.type === 'CLEAR_CLIP_QUEUE') {
+    chrome.storage.session.set({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] })
+      .then(() => sendResponse({ ok: true }));
     return true;
   }
 });
