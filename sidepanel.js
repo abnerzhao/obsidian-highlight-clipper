@@ -5,8 +5,8 @@ let language = 'en';
 let saveSettings = { saveMode: 'daily', vaultName: '', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
 const translations = {
-  en: { title: 'Clip queue', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No clips yet', emptyBody: 'Turn on selection mode, then select text on any page.', source: 'Source', delete: 'Delete' },
-  'zh-CN': { title: '暂存剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有暂存内容', emptyBody: '开启选择模式后，可在任意页面选中文本剪藏。', source: '原文链接', delete: '删除' }
+  en: { title: 'Clip queue', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No clips yet', emptyBody: 'Turn on selection mode, then select text on any page.', source: 'Source', delete: 'Delete', clips: 'clips' },
+  'zh-CN': { title: '暂存剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有暂存内容', emptyBody: '开启选择模式后，可在任意页面选中文本剪藏。', source: '原文链接', delete: '删除', clips: '条剪藏' }
 };
 
 const panel = document.querySelector('#panel');
@@ -32,12 +32,24 @@ function render() {
   mode.setAttribute('aria-pressed', String(selectionMode));
   [save, copy, clear].forEach((button) => { button.disabled = highlights.length === 0; });
   list.innerHTML = highlights.length
-    ? highlights.map((item) => `<li class="item"><div class="clip-content"><span>${escapeHtml(item.text)}</span><small title="${escapeHtml(item.pageTitle || item.pageUrl)}">${escapeHtml(item.pageTitle || item.pageUrl)}</small></div><button class="delete" type="button" data-id="${item.id}" aria-label="${text.delete}">×</button></li>`).join('')
+    ? groupHighlights().map(({ pageTitle, pageUrl, items }) => `<li class="source-group"><div class="source-header" title="${escapeHtml(pageTitle)}"><span>${escapeHtml(pageTitle)}</span><small>${items.length} ${text.clips}</small></div>${items.map((item) => `<div class="clip-item"><span>${escapeHtml(item.text)}</span><button class="delete" type="button" data-id="${item.id}" aria-label="${text.delete}">×</button></div>`).join('')}</li>`).join('')
     : `<li class="empty"><strong>${text.emptyTitle}</strong><span>${text.emptyBody}</span><kbd>macOS: Control + Shift + H</kbd><kbd>Windows/Linux: Alt + Shift + H</kbd></li>`;
   list.querySelectorAll('.delete').forEach((button) => button.addEventListener('click', async () => {
     await chrome.runtime.sendMessage({ type: 'DELETE_CLIP_QUEUE_ITEM', id: button.dataset.id });
     await refresh();
   }));
+}
+
+function groupHighlights() {
+  const groups = new Map();
+  for (const item of highlights) {
+    const pageUrl = item.pageUrl || '';
+    if (!groups.has(pageUrl)) {
+      groups.set(pageUrl, { pageUrl, pageTitle: item.pageTitle || item.pageUrl || '', items: [] });
+    }
+    groups.get(pageUrl).items.push(item);
+  }
+  return [...groups.values()];
 }
 
 function applyLanguage(value) {
