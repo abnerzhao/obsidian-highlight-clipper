@@ -134,5 +134,4 @@ chrome.storage.onChanged.addListener((_changes, area) => {
 chrome.tabs.onActivated.addListener(refresh);
 chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => { if (changeInfo.status === 'complete') refresh(); });
 chrome.storage.sync.get(saveSettings).then(applySettings);
-chrome.runtime.sendMessage({ type: 'ENABLE_SELECTION_MODE_FOR_ACTIVE_TAB' }).catch(() => {});
 refresh();

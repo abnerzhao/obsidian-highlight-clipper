@@ -74,7 +74,7 @@ async function disableSelectionMode(tabId) {
 chrome.action.onClicked.addListener((tab) => {
   if (!tab.id) return;
   chrome.sidePanel.open({ windowId: tab.windowId }).catch((error) => console.error('无法打开侧边栏：', error));
-  setSelectionMode(tab.id, true);
+  toggleSelectionMode(tab.id);
 });
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
