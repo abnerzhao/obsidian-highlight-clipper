@@ -84,11 +84,12 @@ async function toggleMode() {
 
 function markdown() {
   const text = translations[language];
-  const clips = highlights.map((item) => {
+  const clips = groupHighlights().map(({ pageTitle, pageUrl, items }) => {
+    const quotes = items.map((item) => `> ${item.text}`).join('\n>\n');
     const source = saveSettings.includeSource
-      ? `\n>\n> ${text.source}: [${item.pageTitle || item.pageUrl}](${item.pageUrl})`
+      ? `\n>\n> ${text.source}: [${pageTitle || pageUrl}](${pageUrl})`
       : '';
-    return `> ${item.text}${source}`;
+    return `${quotes}${source}`;
   });
   return `---\n\n${clips.join('\n\n')}\n`;
 }
