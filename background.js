@@ -2,8 +2,11 @@ import './clip-queue.js';
 
 const PAGE_STORAGE_KEY = 'highlightsByPage';
 const QUEUE_STORAGE_KEY = 'clipQueue';
+const sessionStorageReady = chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' })
+  .catch((error) => console.error('无法初始化会话暂存：', error));
 
 async function migrateLegacyHighlights() {
+  await sessionStorageReady;
   const session = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
   if (Object.keys(session[PAGE_STORAGE_KEY]).length || session[QUEUE_STORAGE_KEY].length) return;
   const local = await chrome.storage.local.get({ [PAGE_STORAGE_KEY]: {} });
@@ -16,6 +19,7 @@ async function migrateLegacyHighlights() {
 }
 
 async function deleteClip(id) {
+  await sessionStorageReady;
   const data = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
   const next = ClipQueue.remove(data[QUEUE_STORAGE_KEY], data[PAGE_STORAGE_KEY], id);
   await chrome.storage.session.set({ [PAGE_STORAGE_KEY]: next.highlightsByPage, [QUEUE_STORAGE_KEY]: next.queue });
@@ -38,6 +42,7 @@ async function sendToContentScript(tabId, message) {
 
 async function setSelectionMode(tabId, selectionMode) {
   try {
+    await sessionStorageReady;
     const data = await chrome.storage.session.get({ selectionModes: {} });
     await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: selectionMode } });
     return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode });
@@ -48,11 +53,13 @@ async function setSelectionMode(tabId, selectionMode) {
 }
 
 async function toggleSelectionMode(tabId) {
+  await sessionStorageReady;
   const data = await chrome.storage.session.get({ selectionModes: {} });
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
 
 async function disableSelectionMode(tabId) {
+  await sessionStorageReady;
   const data = await chrome.storage.session.get({ selectionModes: {} });
   if (!data.selectionModes[tabId]) return { selectionMode: false };
   await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
@@ -71,6 +78,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  await sessionStorageReady;
   const data = await chrome.storage.session.get({ selectionModes: {} });
   await Promise.all(Object.entries(data.selectionModes)
     .filter(([id, enabled]) => enabled && Number(id) !== tabId)
@@ -91,14 +99,14 @@ chrome.commands.onCommand.addListener((command) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TOGGLE_SELECTION_MODE_FOR_TAB') {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
+    sessionStorageReady.then(() => chrome.tabs.query({ active: true, lastFocusedWindow: true })).then(([tab]) => {
       if (!tab?.id) return { selectionMode: false };
       return toggleSelectionMode(tab.id);
     }).then(sendResponse);
     return true;
   }
   if (message.type === 'GET_SELECTION_MODE_FOR_CURRENT_TAB' && sender.tab?.id) {
-    chrome.storage.session.get({ selectionModes: {} }).then((data) => {
+    sessionStorageReady.then(() => chrome.storage.session.get({ selectionModes: {} })).then((data) => {
       sendResponse({ selectionMode: Boolean(data.selectionModes[sender.tab.id]) });
     });
     return true;
@@ -126,7 +134,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
   if (message.type === 'CLEAR_CLIP_QUEUE') {
-    chrome.storage.session.set({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] })
+    sessionStorageReady.then(() => chrome.storage.session.set({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] }))
       .then(() => sendResponse({ ok: true }));
     return true;
   }

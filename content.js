@@ -149,8 +149,15 @@
     }
     if (area === 'session' && changes[PAGE_STORAGE_KEY]) loadHighlights();
   });
-  chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' })
-    .then((state) => { selectionMode = Boolean(state.selectionMode); })
-    .catch(() => {});
-  loadHighlights();
+  async function initialize() {
+    try {
+      const state = await chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' });
+      selectionMode = Boolean(state.selectionMode);
+      await loadHighlights();
+    } catch {
+      // Chrome may not expose extension storage until the service worker is ready.
+    }
+  }
+
+  initialize();
 })();
