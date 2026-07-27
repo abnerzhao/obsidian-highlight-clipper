@@ -5,8 +5,8 @@ let language = 'en';
 let saveSettings = { saveMode: 'daily', vaultName: '', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
 const translations = {
-  en: { title: 'Clip queue', settings: 'Settings', mode: 'Selection mode', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No clips yet', emptyBody: 'Turn on selection mode, then select text on any page.', source: 'Source', delete: 'Delete', clips: 'clips' },
-  'zh-CN': { title: '暂存剪藏', settings: '设置', mode: '选择模式', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有暂存内容', emptyBody: '开启选择模式后，可在任意页面选中文本剪藏。', source: '原文链接', delete: '删除', clips: '条剪藏' }
+  en: { title: 'Clip queue', settings: 'Settings', mode: 'Selection mode', modeDescription: 'Select text to add clips', on: 'On', off: 'Off', save: 'Save to Obsidian', sent: 'Sent to Obsidian', failed: 'Could not open Obsidian', vaultRequired: 'Set a vault name in Settings', copy: 'Copy', copied: 'Copied', clear: 'Clear all', emptyTitle: 'No clips yet', emptyBody: 'Turn on selection mode, then select text on any page.', source: 'Source', delete: 'Delete', clips: 'clips' },
+  'zh-CN': { title: '暂存剪藏', settings: '设置', mode: '选择模式', modeDescription: '选中文本即可加入暂存剪藏', on: '开', off: '关', save: '保存到 Obsidian', sent: '已发送到 Obsidian', failed: '无法打开 Obsidian', vaultRequired: '请先在设置中填写 Vault 名称', copy: '复制', copied: '已复制', clear: '清除全部', emptyTitle: '还没有暂存内容', emptyBody: '开启选择模式后，可在任意页面选中文本剪藏。', source: '原文链接', delete: '删除', clips: '条剪藏' }
 };
 
 const panel = document.querySelector('#panel');
@@ -60,6 +60,7 @@ function applyLanguage(value) {
   document.querySelector('#settings').setAttribute('aria-label', text.settings);
   document.querySelector('#settings').title = text.settings;
   document.querySelector('#modeLabel').textContent = text.mode;
+  document.querySelector('#modeDescription').textContent = text.modeDescription;
   document.querySelector('#modeOn').textContent = text.on;
   document.querySelector('#modeOff').textContent = text.off;
   save.textContent = text.save;
