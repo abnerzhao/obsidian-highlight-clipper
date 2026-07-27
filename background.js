@@ -2,6 +2,7 @@ import './clip-queue.js';
 
 const PAGE_STORAGE_KEY = 'highlightsByPage';
 const QUEUE_STORAGE_KEY = 'clipQueue';
+const lastShortcutToggleByTab = new Map();
 const sessionStorageReady = chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' })
   .catch((error) => console.error('无法初始化会话暂存：', error));
 
@@ -58,6 +59,17 @@ async function toggleSelectionMode(tabId) {
   return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
 }
 
+async function toggleSelectionModeFromShortcut(tabId) {
+  const now = Date.now();
+  const lastToggle = lastShortcutToggleByTab.get(tabId) ?? 0;
+  if (now - lastToggle < 350) {
+    const data = await chrome.storage.session.get({ selectionModes: {} });
+    return { selectionMode: Boolean(data.selectionModes[tabId]) };
+  }
+  lastShortcutToggleByTab.set(tabId, now);
+  return toggleSelectionMode(tabId);
+}
+
 async function disableSelectionMode(tabId) {
   await sessionStorageReady;
   const data = await chrome.storage.session.get({ selectionModes: {} });
@@ -78,11 +90,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-  await sessionStorageReady;
-  const data = await chrome.storage.session.get({ selectionModes: {} });
-  await Promise.all(Object.entries(data.selectionModes)
-    .filter(([id, enabled]) => enabled && Number(id) !== tabId)
-    .map(([id]) => disableSelectionMode(Number(id))));
+  await setSelectionMode(tabId, true);
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
@@ -92,7 +100,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
-    if (tab?.id) return toggleSelectionMode(tab.id);
+    if (tab?.id) return toggleSelectionModeFromShortcut(tab.id);
     return undefined;
   });
 });
@@ -103,6 +111,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (!tab?.id) return { selectionMode: false };
       return toggleSelectionMode(tab.id);
     }).then(sendResponse);
+    return true;
+  }
+  if (message.type === 'TOGGLE_SELECTION_MODE_FROM_PAGE_SHORTCUT' && sender.tab?.id) {
+    toggleSelectionModeFromShortcut(sender.tab.id).then(sendResponse);
     return true;
   }
   if (message.type === 'GET_SELECTION_MODE_FOR_CURRENT_TAB' && sender.tab?.id) {

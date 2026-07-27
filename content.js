@@ -141,6 +141,23 @@
     if (selectionMode) highlightSelection();
   });
 
+  function isHighlightShortcut(event) {
+    if (event.key.toLowerCase() !== 'h' || event.metaKey) return false;
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    return isMac
+      ? event.ctrlKey && event.shiftKey && !event.altKey
+      : event.altKey && event.shiftKey && !event.ctrlKey;
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (!isHighlightShortcut(event) || event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+    event.preventDefault();
+    event.stopPropagation();
+    chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FROM_PAGE_SHORTCUT' })
+      .then((state) => { selectionMode = Boolean(state.selectionMode); })
+      .catch(() => {});
+  }, true);
+
   CSS.highlights.set(HIGHLIGHT_NAME, cssHighlight);
   chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#ef4444' }).then(applyHighlightStyle);
   chrome.storage.onChanged.addListener((changes, area) => {
