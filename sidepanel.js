@@ -126,9 +126,6 @@ save.addEventListener('click', async () => {
   if (!result.ok) console.error('无法打开 Obsidian：', result.error);
 });
 document.querySelector('#settings').addEventListener('click', () => chrome.runtime.openOptionsPage());
-window.addEventListener('pagehide', () => {
-  if (activeTab?.id) chrome.runtime.sendMessage({ type: 'DISABLE_SELECTION_MODE_FOR_TAB', tabId: activeTab.id }).catch(() => {});
-});
 chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'session') refresh();
   if (area === 'sync') chrome.storage.sync.get(saveSettings).then(applySettings);
