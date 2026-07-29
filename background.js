@@ -83,11 +83,13 @@ async function disableSelectionMode(tabId) {
   return { selectionMode: false };
 }
 
-chrome.action.onClicked.addListener((tab) => {
+function openPanelAndEnableSelection(tab) {
   if (!tab.id) return;
   chrome.sidePanel.open({ windowId: tab.windowId }).catch((error) => console.error('无法打开侧边栏：', error));
-  toggleSelectionMode(tab.id);
-});
+  return setSelectionMode(tab.id, true);
+}
+
+chrome.action.onClicked.addListener(openPanelAndEnableSelection);
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   await setSelectionMode(tabId, true);
@@ -100,7 +102,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
-    if (tab?.id) return toggleSelectionModeFromShortcut(tab.id);
+    if (tab?.id) return openPanelAndEnableSelection(tab);
     return undefined;
   });
 });
