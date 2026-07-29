@@ -41,14 +41,38 @@ async function sendToContentScript(tabId, message) {
   }
 }
 
+async function isHighlightableTab(tabId) {
+  const tab = await chrome.tabs.get(tabId);
+  const url = tab.url ?? '';
+  return /^https?:\/\//.test(url) && !/^https?:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore)/.test(url);
+}
+
+async function clearSelectionModeState(tabId) {
+  const data = await chrome.storage.session.get({ selectionModes: {} });
+  await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
+}
+
 async function setSelectionMode(tabId, selectionMode) {
   try {
     await sessionStorageReady;
+    if (selectionMode && !await isHighlightableTab(tabId)) {
+      await clearSelectionModeState(tabId);
+      return { selectionMode: false };
+    }
+    if (selectionMode) {
+      const response = await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: true });
+      const data = await chrome.storage.session.get({ selectionModes: {} });
+      await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: true } });
+      return response;
+    }
     const data = await chrome.storage.session.get({ selectionModes: {} });
-    await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: selectionMode } });
-    return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode });
+    await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
+    return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: false });
   } catch (error) {
-    console.error('无法切换高亮选择模式：', error);
+    await clearSelectionModeState(tabId);
+    if (!error.message?.includes('Cannot access contents of the page')) {
+      console.error('无法切换高亮选择模式：', error);
+    }
     return { selectionMode: false };
   }
 }
