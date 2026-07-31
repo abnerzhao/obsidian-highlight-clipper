@@ -2,7 +2,8 @@ import './clip-queue.js';
 
 const PAGE_STORAGE_KEY = 'highlightsByPage';
 const QUEUE_STORAGE_KEY = 'clipQueue';
-const lastShortcutToggleByTab = new Map();
+const SELECTION_MODE_KEY = 'selectionModeEnabled';
+let lastShortcutToggleAt = 0;
 const sessionStorageReady = chrome.storage.session.setAccessLevel({ accessLevel: 'TRUSTED_AND_UNTRUSTED_CONTEXTS' })
   .catch((error) => console.error('无法初始化会话暂存：', error));
 
@@ -68,75 +69,60 @@ async function isHighlightableTab(tabId) {
   return /^https?:\/\//.test(url) && !/^https?:\/\/(chromewebstore\.google\.com|chrome\.google\.com\/webstore)/.test(url);
 }
 
-async function clearSelectionModeState(tabId) {
-  const data = await chrome.storage.session.get({ selectionModes: {} });
-  await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
+async function getSelectionMode() {
+  await sessionStorageReady;
+  const data = await chrome.storage.session.get({ [SELECTION_MODE_KEY]: false });
+  return Boolean(data[SELECTION_MODE_KEY]);
 }
 
-async function setSelectionMode(tabId, selectionMode) {
+async function syncSelectionModeToTab(tabId, selectionMode) {
   try {
-    await sessionStorageReady;
-    if (selectionMode && !await isHighlightableTab(tabId)) {
-      await clearSelectionModeState(tabId);
-      return { selectionMode: false };
-    }
-    if (selectionMode) {
-      const data = await chrome.storage.session.get({ selectionModes: {} });
-      await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: true } });
-      return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: true });
-    }
-    const data = await chrome.storage.session.get({ selectionModes: {} });
-    await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
-    return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: false });
+    if (!await isHighlightableTab(tabId)) return { selectionMode: false };
+    return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode });
   } catch (error) {
-    await clearSelectionModeState(tabId);
     if (!error.message?.includes('Cannot access contents of the page')) {
       console.error('无法切换高亮选择模式：', error);
     }
-    return { selectionMode: false };
+    return { selectionMode };
   }
 }
 
-async function toggleSelectionMode(tabId) {
+async function setSelectionMode(selectionMode, tabId) {
   await sessionStorageReady;
-  const data = await chrome.storage.session.get({ selectionModes: {} });
-  return setSelectionMode(tabId, !Boolean(data.selectionModes[tabId]));
+  const nextSelectionMode = Boolean(selectionMode);
+  await chrome.storage.session.set({ [SELECTION_MODE_KEY]: nextSelectionMode });
+  chrome.runtime.sendMessage({ type: 'SELECTION_MODE_CHANGED', selectionMode: nextSelectionMode }).catch(() => {});
+  if (tabId) await syncSelectionModeToTab(tabId, nextSelectionMode);
+  return { selectionMode: nextSelectionMode };
 }
 
-async function toggleSelectionModeFromShortcut(tabId) {
+async function toggleSelectionMode() {
+  return setSelectionMode(!await getSelectionMode());
+}
+
+async function toggleSelectionModeFromShortcut() {
   const now = Date.now();
-  const lastToggle = lastShortcutToggleByTab.get(tabId) ?? 0;
-  if (now - lastToggle < 350) {
-    const data = await chrome.storage.session.get({ selectionModes: {} });
-    return { selectionMode: Boolean(data.selectionModes[tabId]) };
-  }
-  lastShortcutToggleByTab.set(tabId, now);
-  return toggleSelectionMode(tabId);
-}
-
-async function disableSelectionMode(tabId) {
-  await sessionStorageReady;
-  const data = await chrome.storage.session.get({ selectionModes: {} });
-  if (!data.selectionModes[tabId]) return { selectionMode: false };
-  await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
-  try {
-    await chrome.tabs.sendMessage(tabId, { type: 'SET_SELECTION_MODE', selectionMode: false });
-  } catch {
-    // The page may already be navigating or the content script may not exist.
-  }
-  return { selectionMode: false };
+  if (now - lastShortcutToggleAt < 350) return { selectionMode: await getSelectionMode() };
+  lastShortcutToggleAt = now;
+  return toggleSelectionMode();
 }
 
 function openPanelAndEnableSelection(tab) {
   if (!tab.id) return;
   chrome.sidePanel.open({ windowId: tab.windowId }).catch((error) => console.error('无法打开侧边栏：', error));
-  return setSelectionMode(tab.id, true);
+  return setSelectionMode(true, tab.id);
 }
 
 chrome.action.onClicked.addListener(openPanelAndEnableSelection);
 
 chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-  await setSelectionMode(tabId, true);
+  await syncSelectionModeToTab(tabId, await getSelectionMode());
+});
+
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+  if (changeInfo.status === 'complete') {
+    await syncSelectionModeToTab(tabId, await getSelectionMode());
+  }
 });
 
 chrome.commands.onCommand.addListener((command) => {
@@ -153,35 +139,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     sendResponse({ ok: true });
     return;
   }
-  if (message.type === 'TOGGLE_SELECTION_MODE_FOR_TAB') {
-    const targetTab = message.tabId
-      ? Promise.resolve(message.tabId)
-      : sessionStorageReady.then(() => chrome.tabs.query({ active: true, lastFocusedWindow: true })).then(([tab]) => tab?.id);
-    targetTab.then((tabId) => {
-      if (!tabId) return { selectionMode: false };
-      return toggleSelectionMode(tabId);
-    }).then(sendResponse);
+  if (message.type === 'TOGGLE_SELECTION_MODE') {
+    toggleSelectionMode().then(sendResponse);
     return true;
   }
   if (message.type === 'TOGGLE_SELECTION_MODE_FROM_PAGE_SHORTCUT' && sender.tab?.id) {
-    toggleSelectionModeFromShortcut(sender.tab.id).then(sendResponse);
+    toggleSelectionModeFromShortcut().then(sendResponse);
     return true;
   }
-  if (message.type === 'GET_SELECTION_MODE_FOR_CURRENT_TAB' && sender.tab?.id) {
-    sessionStorageReady.then(() => chrome.storage.session.get({ selectionModes: {} })).then((data) => {
-      sendResponse({ selectionMode: Boolean(data.selectionModes[sender.tab.id]) });
-    });
+  if (message.type === 'GET_SELECTION_MODE' || message.type === 'GET_SELECTION_MODE_FOR_CURRENT_TAB') {
+    getSelectionMode().then((selectionMode) => sendResponse({ selectionMode }));
     return true;
   }
   if (message.type === 'ENABLE_SELECTION_MODE_FOR_ACTIVE_TAB') {
     chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
       if (!tab?.id) return { selectionMode: false };
-      return setSelectionMode(tab.id, true);
+      return setSelectionMode(true, tab.id);
     }).then(sendResponse);
     return true;
   }
-  if (message.type === 'DISABLE_SELECTION_MODE_FOR_TAB' && message.tabId) {
-    disableSelectionMode(message.tabId).then(sendResponse);
+  if (message.type === 'DISABLE_SELECTION_MODE_FOR_TAB') {
+    setSelectionMode(false, message.tabId).then(sendResponse);
     return true;
   }
   if (message.type === 'OPEN_OBSIDIAN' && message.tabId && message.url) {

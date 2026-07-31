@@ -1,6 +1,7 @@
 (() => {
   const PAGE_STORAGE_KEY = 'highlightsByPage';
   const QUEUE_STORAGE_KEY = 'clipQueue';
+  const SELECTION_MODE_KEY = 'selectionModeEnabled';
   const HIGHLIGHT_NAME = 'obsidian-highlighter';
   let highlights = [];
   let selectionMode = false;
@@ -126,6 +127,10 @@
       sendResponse({ selectionMode });
       return;
     }
+    if (message.type === 'SELECTION_MODE_CHANGED') {
+      selectionMode = Boolean(message.selectionMode);
+      return;
+    }
     if (message.type === 'DELETE_HIGHLIGHT') {
       const index = highlights.findIndex((item) => item.id === message.id);
       if (index >= 0) removeHighlightAt(index);
@@ -166,10 +171,13 @@
       chrome.storage.sync.get({ highlightStyle: 'background', underlineColor: '#ef4444' }).then(applyHighlightStyle);
     }
     if (area === 'session' && changes[PAGE_STORAGE_KEY]) loadHighlights();
+    if (area === 'session' && changes[SELECTION_MODE_KEY]) {
+      selectionMode = Boolean(changes[SELECTION_MODE_KEY].newValue);
+    }
   });
   async function initialize() {
     try {
-      const state = await chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE_FOR_CURRENT_TAB' });
+      const state = await chrome.runtime.sendMessage({ type: 'GET_SELECTION_MODE' });
       selectionMode = Boolean(state.selectionMode);
       await loadHighlights();
     } catch {

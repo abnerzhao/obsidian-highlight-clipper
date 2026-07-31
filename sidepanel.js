@@ -31,11 +31,11 @@ async function refresh(tabId) {
   } else if (!nextActiveTab) {
     [nextActiveTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   }
-  const data = await chrome.storage.session.get({ clipQueue: [], selectionModes: {} });
+  const data = await chrome.storage.session.get({ clipQueue: [], selectionModeEnabled: false });
   if (revision !== refreshRevision) return;
   activeTab = nextActiveTab;
   highlights = data.clipQueue;
-  selectionMode = Boolean(activeTab?.id && data.selectionModes[activeTab.id]);
+  selectionMode = Boolean(data.selectionModeEnabled);
   render();
 }
 
@@ -90,8 +90,7 @@ function escapeHtml(text) {
 }
 
 async function toggleMode() {
-  if (!activeTab?.id) return;
-  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB', tabId: activeTab.id });
+  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE' });
   selectionMode = result.selectionMode;
   render();
 }

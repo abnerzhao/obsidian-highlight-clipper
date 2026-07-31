@@ -12,8 +12,8 @@ assert.doesNotMatch(
 );
 assert.match(
   sidepanel,
-  /TOGGLE_SELECTION_MODE_FOR_TAB', tabId: activeTab\.id/,
-  'The side panel must toggle the tab it is currently displaying.'
+  /type: 'TOGGLE_SELECTION_MODE'/,
+  'The side panel must toggle the shared selection mode.'
 );
 assert.doesNotMatch(
   sidepanel,
@@ -24,6 +24,11 @@ assert.match(
   sidepanel,
   /chrome\.tabs\.onActivated\.addListener\(\(\{ tabId \}\) => refresh\(tabId\)\)/,
   'Tab activation must refresh the side panel with the activated tab ID.'
+);
+assert.match(
+  background,
+  /syncSelectionModeToTab\(tabId, await getSelectionMode\(\)\)/,
+  'Tab activation must synchronize the existing shared mode without rewriting it.'
 );
 assert.match(
   content,
