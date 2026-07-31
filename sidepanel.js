@@ -77,7 +77,7 @@ function escapeHtml(text) {
 
 async function toggleMode() {
   if (!activeTab?.id) return;
-  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB' });
+  const result = await chrome.runtime.sendMessage({ type: 'TOGGLE_SELECTION_MODE_FOR_TAB', tabId: activeTab.id });
   selectionMode = result.selectionMode;
   render();
 }

@@ -119,10 +119,6 @@ chrome.tabs.onActivated.addListener(async ({ tabId }) => {
   await setSelectionMode(tabId, true);
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
-  if (changeInfo.status === 'loading') disableSelectionMode(tabId);
-});
-
 chrome.commands.onCommand.addListener((command) => {
   if (command !== 'highlight-selection') return;
   chrome.tabs.query({ active: true, lastFocusedWindow: true }).then(([tab]) => {
@@ -133,9 +129,12 @@ chrome.commands.onCommand.addListener((command) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TOGGLE_SELECTION_MODE_FOR_TAB') {
-    sessionStorageReady.then(() => chrome.tabs.query({ active: true, lastFocusedWindow: true })).then(([tab]) => {
-      if (!tab?.id) return { selectionMode: false };
-      return toggleSelectionMode(tab.id);
+    const targetTab = message.tabId
+      ? Promise.resolve(message.tabId)
+      : sessionStorageReady.then(() => chrome.tabs.query({ active: true, lastFocusedWindow: true })).then(([tab]) => tab?.id);
+    targetTab.then((tabId) => {
+      if (!tabId) return { selectionMode: false };
+      return toggleSelectionMode(tabId);
     }).then(sendResponse);
     return true;
   }
