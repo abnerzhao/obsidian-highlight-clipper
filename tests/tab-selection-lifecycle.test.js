@@ -14,5 +14,15 @@ assert.match(
   /TOGGLE_SELECTION_MODE_FOR_TAB', tabId: activeTab\.id/,
   'The side panel must toggle the tab it is currently displaying.'
 );
+assert.doesNotMatch(
+  sidepanel,
+  /tabs\.query\(\{ active: true, lastFocusedWindow: true \}\)/,
+  'Side-panel refresh must not rely on lastFocusedWindow after tab activation.'
+);
+assert.match(
+  sidepanel,
+  /chrome\.tabs\.onActivated\.addListener\(\(\{ tabId \}\) => refresh\(tabId\)\)/,
+  'Tab activation must refresh the side panel with the activated tab ID.'
+);
 
 console.log('tab selection lifecycle tests passed');

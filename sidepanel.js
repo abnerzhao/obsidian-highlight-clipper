@@ -1,6 +1,7 @@
 let activeTab;
 let highlights = [];
 let selectionMode = false;
+let refreshRevision = 0;
 let language = 'en';
 let saveSettings = { saveMode: 'daily', vaultName: '', customFile: 'Inbox/Web Highlights.md', includeSource: true, panelTheme: 'auto', language: 'en' };
 
@@ -17,9 +18,21 @@ const save = document.querySelector('#save');
 const copy = document.querySelector('#copy');
 const clear = document.querySelector('#clear');
 
-async function refresh() {
-  [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+async function refresh(tabId) {
+  const revision = ++refreshRevision;
+  let nextActiveTab = activeTab;
+  if (tabId) {
+    try {
+      nextActiveTab = await chrome.tabs.get(tabId);
+    } catch {
+      nextActiveTab = undefined;
+    }
+  } else if (!nextActiveTab) {
+    [nextActiveTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  }
   const data = await chrome.storage.session.get({ clipQueue: [], selectionModes: {} });
+  if (revision !== refreshRevision) return;
+  activeTab = nextActiveTab;
   highlights = data.clipQueue;
   selectionMode = Boolean(activeTab?.id && data.selectionModes[activeTab.id]);
   render();
@@ -130,7 +143,9 @@ chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'session') refresh();
   if (area === 'sync') chrome.storage.sync.get(saveSettings).then(applySettings);
 });
-chrome.tabs.onActivated.addListener(refresh);
-chrome.tabs.onUpdated.addListener((_tabId, changeInfo) => { if (changeInfo.status === 'complete') refresh(); });
+chrome.tabs.onActivated.addListener(({ tabId }) => refresh(tabId));
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.status === 'complete' && activeTab?.id === tabId) refresh(tabId);
+});
 chrome.storage.sync.get(saveSettings).then(applySettings);
 refresh();
