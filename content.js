@@ -68,6 +68,7 @@
       [PAGE_STORAGE_KEY]: highlightsByPage,
       [QUEUE_STORAGE_KEY]: ClipQueue.syncPage(data[QUEUE_STORAGE_KEY], highlights, pageKey, document.title)
     });
+    chrome.runtime.sendMessage({ type: 'CLIP_QUEUE_UPDATED' }).catch(() => {});
   }
 
   function normalizedText(text) {

@@ -128,6 +128,11 @@ chrome.commands.onCommand.addListener((command) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'CLIP_QUEUE_UPDATED') {
+    chrome.runtime.sendMessage({ type: 'CLIP_QUEUE_CHANGED' }).catch(() => {});
+    sendResponse({ ok: true });
+    return;
+  }
   if (message.type === 'TOGGLE_SELECTION_MODE_FOR_TAB') {
     const targetTab = message.tabId
       ? Promise.resolve(message.tabId)

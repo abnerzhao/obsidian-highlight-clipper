@@ -20,6 +20,7 @@ const clear = document.querySelector('#clear');
 
 async function refresh(tabId) {
   const revision = ++refreshRevision;
+  if (tabId && activeTab?.id !== tabId) activeTab = { id: tabId };
   let nextActiveTab = activeTab;
   if (tabId) {
     try {
@@ -142,6 +143,9 @@ document.querySelector('#settings').addEventListener('click', () => chrome.runti
 chrome.storage.onChanged.addListener((_changes, area) => {
   if (area === 'session') refresh();
   if (area === 'sync') chrome.storage.sync.get(saveSettings).then(applySettings);
+});
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'CLIP_QUEUE_CHANGED') refresh();
 });
 chrome.tabs.onActivated.addListener(({ tabId }) => refresh(tabId));
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
