@@ -27,8 +27,29 @@ async function deleteClip(id) {
   return { ok: true };
 }
 
+async function syncLegacyTabHighlights(highlightsByPage) {
+  await sessionStorageReady;
+  const entries = Object.entries(highlightsByPage ?? {}).filter(([, items]) => Array.isArray(items));
+  if (!entries.length) return;
+  const data = await chrome.storage.session.get({ [PAGE_STORAGE_KEY]: {}, [QUEUE_STORAGE_KEY]: [] });
+  const nextHighlightsByPage = { ...data[PAGE_STORAGE_KEY] };
+  let nextQueue = data[QUEUE_STORAGE_KEY];
+  for (const [pageUrl, items] of entries) {
+    if (items.length) nextHighlightsByPage[pageUrl] = items;
+    else delete nextHighlightsByPage[pageUrl];
+    nextQueue = ClipQueue.syncPage(nextQueue, items, pageUrl, pageUrl);
+  }
+  await chrome.storage.session.set({ [PAGE_STORAGE_KEY]: nextHighlightsByPage, [QUEUE_STORAGE_KEY]: nextQueue });
+  chrome.runtime.sendMessage({ type: 'CLIP_QUEUE_CHANGED' }).catch(() => {});
+}
+
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false }).catch((error) => console.error('无法配置侧边栏：', error));
 migrateLegacyHighlights().catch((error) => console.error('无法迁移暂存剪藏：', error));
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local' || !changes[PAGE_STORAGE_KEY]?.newValue) return;
+  syncLegacyTabHighlights(changes[PAGE_STORAGE_KEY].newValue)
+    .catch((error) => console.error('无法同步旧页面暂存剪藏：', error));
+});
 
 async function sendToContentScript(tabId, message) {
   try {
