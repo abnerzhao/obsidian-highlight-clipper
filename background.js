@@ -60,10 +60,9 @@ async function setSelectionMode(tabId, selectionMode) {
       return { selectionMode: false };
     }
     if (selectionMode) {
-      const response = await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: true });
       const data = await chrome.storage.session.get({ selectionModes: {} });
       await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: true } });
-      return response;
+      return await sendToContentScript(tabId, { type: 'SET_SELECTION_MODE', selectionMode: true });
     }
     const data = await chrome.storage.session.get({ selectionModes: {} });
     await chrome.storage.session.set({ selectionModes: { ...data.selectionModes, [tabId]: false } });
