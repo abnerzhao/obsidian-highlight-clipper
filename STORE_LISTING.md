@@ -6,18 +6,19 @@ Obsidian Highlight Clipper
 
 ## Short description
 
-Highlight key passages on any web page and clip them to Obsidian with source links.
+Highlight across web pages, keep a session-wide clip queue, and save batches to Obsidian with source links.
 
 ## Detailed description
 
 Obsidian Highlight Clipper helps you capture useful ideas while you read.
 
-Turn on selection mode, highlight text on any web page, and review every selection in a clean side panel. When you are ready, save the whole collection to Obsidian as formatted Markdown quotes, with an optional link back to the original page.
+Turn on selection mode and highlight text while reading across multiple web pages. Every selection is collected in one clean side panel and stays available as you switch tabs, navigate, or refresh pages during the current Chrome session. When you are ready, save the whole collection to Obsidian as formatted Markdown quotes, with an optional link back to each original page.
 
 ### Features
 
-- Highlight multiple passages on a page without interrupting your reading flow.
-- Review, remove, copy, or clear highlights from the side panel.
+- Highlight multiple passages across tabs without interrupting your reading flow.
+- Keep one session-wide clip queue while switching tabs or refreshing pages.
+- Review, remove, copy, or clear collected highlights from the side panel.
 - Keep highlights ordered by their position in the article.
 - Save a batch to your Obsidian daily note or to a custom file path.
 - Include the original page as a Markdown source link.
@@ -27,8 +28,8 @@ Turn on selection mode, highlight text on any web page, and review every selecti
 ### How it works
 
 1. Click the extension icon to open the side panel and enter selection mode.
-2. Select text on the page to add a highlight.
-3. Review the collected passages in the side panel.
+2. Select text on any page to add it to the shared clip queue.
+3. Keep reading across tabs, then review all collected passages in the side panel.
 4. Choose **Save to Obsidian** to send the formatted clipping to Obsidian.
 
 ### Requirements
